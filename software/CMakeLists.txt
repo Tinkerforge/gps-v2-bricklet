@@ -61,6 +61,11 @@ SET_TARGET_PROPERTIES(${PROJECT_NAME}.elf PROPERTIES LINK_FLAGS
 	"-mcpu=${MCU} -Wl,--gc-sections -T\"${PROJECT_SOURCE_DIR}/src/bricklib2/linker_script/samd09_firmware_with_brickletboot.ld\" "
 )
 
+# touch main.c to make sure that all of the custom POST_BUILD commands are definitely called
+ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
+                   PRE_BUILD
+                   COMMAND touch ${PROJECT_SOURCE_DIR}/src/main.c)
+
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf 
                    POST_BUILD 
                    COMMAND ${CMAKE_OBJCOPY} -S -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin)
@@ -84,7 +89,7 @@ ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD 
                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../../brickletboot/software/build
-                   COMMAND make)
+                   COMMAND make clean && make)
 
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD
