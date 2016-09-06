@@ -24,6 +24,9 @@
 #include "bricklib2/logging/logging.h"
 #include "bricklib2/bootloader/bootloader.h"
 #include "bricklib2/bootloader/tinydma.h"
+#include "bricklib2/hal/system_timer/system_timer.h"
+
+#define SYSTEM_TIMER_FREQUENCY 1000 // Use 1 kHz system timer
 
 const uint32_t device_identifier __attribute__ ((section(".device_identifier"))) = BOOTLOADER_DEVICE_IDENTIFIER;
 const uint32_t firmware_version __attribute__ ((section(".firmware_version"))) = (FIRMWARE_VERSION_MAJOR << 16) | (FIRMWARE_VERSION_MINOR << 8) | (FIRMWARE_VERSION_REVISION << 0);
@@ -34,15 +37,16 @@ BootloaderStatus bootloader_status;
 BootloaderFunctions bootloader_functions;
 int main(void) {
 //	logging_init();
+	system_timer_init(CONF_CLOCK_DPLL_OUTPUT_FREQUENCY, SYSTEM_TIMER_FREQUENCY);
 
 	bootloader_status.boot_mode = BOOT_MODE_FIRMWARE;
 	bootloader_status.status_led_config = 1;
 	bootloader_status.st.descriptor_section = tinydma_get_descriptor_section();
 	bootloader_status.st.write_back_section = tinydma_get_write_back_section();
-
 	firmware_entry(&bootloader_functions, &bootloader_status);
 
 	while(true) {
+		bootloader_status.system_timer_tick = system_timer_get_time();
 		bootloader_functions.spitfp_tick(&bootloader_status);
 //		puts("x\n\r");
 	}

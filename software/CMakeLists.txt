@@ -28,6 +28,7 @@ SET(SOURCES
 	"${PROJECT_SOURCE_DIR}/src/bricklib2/logging/logging.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib2/bootloader/tinydma.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib2/hal/startup/startup_samd09.c"
+	"${PROJECT_SOURCE_DIR}/src/bricklib2/hal/system_timer/system_timer.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib2/asf/common/utils/interrupt/interrupt_sam_nvic.c"
 #	"${PROJECT_SOURCE_DIR}/src/bricklib2/asf/sam0/drivers/port/port.c"
 #	"${PROJECT_SOURCE_DIR}/src/bricklib2/asf/sam0/drivers/wdt/wdt.c"
