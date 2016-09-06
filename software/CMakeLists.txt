@@ -90,9 +90,9 @@ ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD
                    COMMAND rm ${PROJECT_SOURCE_DIR}/../../brickletboot/software/src/configs/config_custom_bootloader.h)
 
-ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf POST_BUILD COMMAND 
-                   cat
-                   ${PROJECT_SOURCE_DIR}/../../brickletboot/software/build/brickletboot-with-checksum.bin ${PROJECT_NAME}-with-checksum.bin > ${PROJECT_NAME}-with-bootloader.bin)
+ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
+                   POST_BUILD
+                   COMMAND cat ${PROJECT_SOURCE_DIR}/../../brickletboot/software/build/brickletboot-with-checksum.bin ${PROJECT_NAME}-with-checksum.bin > ${PROJECT_NAME}-with-bootloader.bin)
 
 # add preprocessor defines
 ADD_DEFINITIONS(-D__${CHIP}__ -D__${CHIP_FAMILY}__ -Dflash -Dprintf=iprintf) 
