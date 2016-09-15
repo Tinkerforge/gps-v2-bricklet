@@ -54,7 +54,7 @@
 
 
 // --- TINYDMA ---
-#define TINYDMA_MAX_USED_CHANNEL 2
+#define TINYDMA_MAX_USED_CHANNEL 4
 
 // Note: If you use the external descriptors, you need an external handler too.
 //       It is possible to use external handler with internal descriptors.
