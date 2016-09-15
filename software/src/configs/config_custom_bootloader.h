@@ -143,9 +143,9 @@
 #define CONF_CLOCK_DPLL_REFERENCE_DIVIDER       1
 #define CONF_CLOCK_DPLL_OUTPUT_FREQUENCY        48000000
 
-// DPLL GCLK reference configuration */
+// DPLL GCLK reference configuration
 #define CONF_CLOCK_DPLL_REFERENCE_GCLK_GENERATOR  GCLK_GENERATOR_1
-// DPLL GCLK lock timer configuration */
+// DPLL GCLK lock timer configuration
 #define CONF_CLOCK_DPLL_LOCK_GCLK_GENERATOR     GCLK_GENERATOR_1
 
 // Set this to true to configure the GCLK when running clocks_init. If set to
@@ -154,7 +154,7 @@
 
 // Configure GCLK generator 0 (Main Clock)
 #define CONF_CLOCK_GCLK_0_ENABLE                true
-#define CONF_CLOCK_GCLK_0_RUN_IN_STANDBY        true
+#define CONF_CLOCK_GCLK_0_RUN_IN_STANDBY        false
 #define CONF_CLOCK_GCLK_0_CLOCK_SOURCE          SYSTEM_CLOCK_SOURCE_DFLL
 #define CONF_CLOCK_GCLK_0_PRESCALER             1
 #define CONF_CLOCK_GCLK_0_OUTPUT_ENABLE         false
@@ -174,7 +174,7 @@
 #define CONF_CLOCK_GCLK_2_OUTPUT_ENABLE         false
 
 // Configure GCLK generator 3
-#define CONF_CLOCK_GCLK_3_ENABLE                false
+#define CONF_CLOCK_GCLK_3_ENABLE                true
 #define CONF_CLOCK_GCLK_3_RUN_IN_STANDBY        false
 #define CONF_CLOCK_GCLK_3_CLOCK_SOURCE          SYSTEM_CLOCK_SOURCE_OSC8M
 #define CONF_CLOCK_GCLK_3_PRESCALER             1
