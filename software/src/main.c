@@ -25,30 +25,29 @@
 #include "bricklib2/bootloader/bootloader.h"
 #include "bricklib2/bootloader/tinydma.h"
 #include "bricklib2/hal/system_timer/system_timer.h"
+#include "bricklib2/hal/uartbb/uartbb.h"
+#include "communication.h"
+#include "firefly_x1.h"
 
 #define SYSTEM_TIMER_FREQUENCY 1000 // Use 1 kHz system timer
 
-const uint32_t device_identifier __attribute__ ((section(".device_identifier"))) = BOOTLOADER_DEVICE_IDENTIFIER;
-const uint32_t firmware_version __attribute__ ((section(".firmware_version"))) = (FIRMWARE_VERSION_MAJOR << 16) | (FIRMWARE_VERSION_MINOR << 8) | (FIRMWARE_VERSION_REVISION << 0);
+FireFlyX1 firefly_x1;
 
-const firmware_entry_func_t firmware_entry =  BOOTLOADER_FIRMWARE_ENTRY_FUNC;
-
-BootloaderStatus bootloader_status;
-BootloaderFunctions bootloader_functions;
 int main(void) {
-//	logging_init();
 	system_timer_init(CONF_CLOCK_DPLL_OUTPUT_FREQUENCY, SYSTEM_TIMER_FREQUENCY);
+	uartbb_init();
 
-	bootloader_status.boot_mode = BOOT_MODE_FIRMWARE;
-	bootloader_status.status_led_config = 1;
-	bootloader_status.st.descriptor_section = tinydma_get_descriptor_section();
-	bootloader_status.st.write_back_section = tinydma_get_write_back_section();
-	firmware_entry(&bootloader_functions, &bootloader_status);
+	uartbb_puts("Start GPS Bricklet 2.0\n\r");
+
+	bootloader_init();
+	firefly_x1_init(&firefly_x1);
 
 	while(true) {
-		bootloader_status.system_timer_tick = system_timer_get_time();
-		bootloader_functions.spitfp_tick(&bootloader_status);
-//		puts("x\n\r");
+		bootloader_tick();
+		firefly_x1_tick(&firefly_x1);
+
+		system_timer_sleep_ms(250);
+		uartbb_puts("time: "); uartbb_puti(system_timer_get_ms()); uartbb_putnl();
 	}
 
 }
