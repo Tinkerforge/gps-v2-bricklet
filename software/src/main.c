@@ -36,18 +36,13 @@ FireFlyX1 firefly_x1;
 int main(void) {
 	system_timer_init(CONF_CLOCK_DPLL_OUTPUT_FREQUENCY, SYSTEM_TIMER_FREQUENCY);
 	uartbb_init();
-
 	uartbb_puts("Start GPS Bricklet 2.0\n\r");
 
-	bootloader_init();
 	firefly_x1_init(&firefly_x1);
 
 	while(true) {
 		bootloader_tick();
 		firefly_x1_tick(&firefly_x1);
-
-		system_timer_sleep_ms(250);
-		uartbb_puts("time: "); uartbb_puti(system_timer_get_ms()); uartbb_putnl();
 	}
 
 }
