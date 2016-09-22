@@ -22,7 +22,7 @@
 #ifndef CONFIG_SPI_H
 #define CONFIG_SPI_H
 
-// SPI config is part of custom bootloader, we get it from there
-#include "config_custom_bootloader.h"
+#define CONF_SPI_SLAVE_ENABLE false
+#define CONF_SPI_MASTER_ENABLE true
 
 #endif

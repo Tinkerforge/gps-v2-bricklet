@@ -19,10 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef CONFIG_GPS_H
+#define CONFIG_GPS_H
 
 #define STARTUP_SYSTEM_INIT_ALREADY_DONE
+
+#define UARTBB_USE_PORT_C
 
 #define FIRMWARE_VERSION_MAJOR 1
 #define FIRMWARE_VERSION_MINOR 0
