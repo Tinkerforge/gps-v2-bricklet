@@ -60,12 +60,12 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME}.elf -lc_nano)
 
 # define compile flags
 SET_TARGET_PROPERTIES(${PROJECT_NAME}.elf PROPERTIES COMPILE_FLAGS
-	"${DEBUG} -mcpu=${MCU} -std=gnu99  -Wall -mlong-calls -ffunction-sections -O${OPTIMIZATION_LEVEL}"
+	"${DEBUG} -mcpu=${MCU} -std=gnu99 -Wall --specs=nano.specs -mlong-calls -ffunction-sections -fdata-sections -O${OPTIMIZATION_LEVEL}"
 )
 
 #define linker flags
 SET_TARGET_PROPERTIES(${PROJECT_NAME}.elf PROPERTIES LINK_FLAGS
-	"-mcpu=${MCU} -Wl,--gc-sections -T\"${PROJECT_SOURCE_DIR}/src/bricklib2/linker_script/samd09_firmware_with_brickletboot.ld\" "
+	"-nostartfiles -mcpu=${MCU} -Wl,--gc-sections -T\"${PROJECT_SOURCE_DIR}/src/bricklib2/linker_script/samd09_firmware_with_brickletboot.ld\" "
 )
 
 # touch main.c to make sure that all of the custom POST_BUILD commands are definitely called
