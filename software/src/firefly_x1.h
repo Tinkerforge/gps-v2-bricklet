@@ -26,15 +26,23 @@
 #include "bricklib2/bootloader/bootloader.h"
 
 #define FIREFLY_X1_RECV_BUFFER_SIZE 256
-#define FIREFLY_X1_SEND_BUFFER_SIZE 100
+#define FIREFLY_X1_SEND_BUFFER_SIZE 256
+
+typedef enum {
+	FIREFLY_X1_STATE_WAIT_FOR_INTERRUPT,
+	FIREFLY_X1_STATE_RECEIVE_IN_PROGRESS,
+	FIREFLY_X1_STATE_WAIT_8MS,
+	FIREFLY_X1_STATE_NEW_DATA_RECEIVED,
+} FireFlyX1State;
 
 typedef struct {
 	struct spi_module spi_module;
+	struct spi_slave_inst slave;
 	char buffer_recv[FIREFLY_X1_RECV_BUFFER_SIZE];
 	char buffer_send[FIREFLY_X1_SEND_BUFFER_SIZE];
-	DmacDescriptor *descriptor_tx;
-	DmacDescriptor *descriptor_rx;
-}FireFlyX1;
+	FireFlyX1State state;
+	uint32_t wait_8ms_start_time;
+} FireFlyX1;
 
 
 void firefly_x1_init(FireFlyX1 *firefly_x1);
