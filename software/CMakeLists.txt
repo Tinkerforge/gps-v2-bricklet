@@ -56,7 +56,24 @@ MESSAGE(STATUS "\nFound following source files:\n ${SOURCES}\n")
 ADD_EXECUTABLE(${PROJECT_NAME}.elf ${SOURCES})
 SET_TARGET_PROPERTIES(${PROJECT_NAME}.elf PROPERTIES LINKER_LANGUAGE C)
 
-TARGET_LINK_LIBRARIES(${PROJECT_NAME}.elf -lc_nano)
+# add library aeabi_idiv
+ADD_LIBRARY(aeabi_idiv "${PROJECT_SOURCE_DIR}/src/bricklib2/bootloader/libgcc/aeabi_idiv.c")
+SET_TARGET_PROPERTIES(aeabi_idiv PROPERTIES COMPILE_FLAGS "-mcpu=${MCU} -O${OPTIMIZATION_LEVEL}")
+
+# add library aeabi_uidiv
+ADD_LIBRARY(aeabi_uidiv "${PROJECT_SOURCE_DIR}/src/bricklib2/bootloader/libgcc/aeabi_uidiv.c")
+SET_TARGET_PROPERTIES(aeabi_uidiv PROPERTIES COMPILE_FLAGS "-mcpu=${MCU} -O${OPTIMIZATION_LEVEL}")
+
+# add library aeabi_idivmod
+ADD_LIBRARY(aeabi_idivmod "${PROJECT_SOURCE_DIR}/src/bricklib2/bootloader/libgcc/aeabi_idivmod.c")
+SET_TARGET_PROPERTIES(aeabi_idivmod PROPERTIES COMPILE_FLAGS "-mcpu=${MCU} -O${OPTIMIZATION_LEVEL}")
+
+# add library aeabi_uidivmod
+ADD_LIBRARY(aeabi_uidivmod "${PROJECT_SOURCE_DIR}/src/bricklib2/bootloader/libgcc/aeabi_uidivmod.c")
+SET_TARGET_PROPERTIES(aeabi_uidivmod PROPERTIES COMPILE_FLAGS "-mcpu=${MCU} -O${OPTIMIZATION_LEVEL}")
+
+TARGET_LINK_LIBRARIES(${PROJECT_NAME}.elf aeabi_idiv aeabi_uidiv aeabi_idivmod aeabi_uidivmod -lc_nano)
+#TARGET_LINK_LIBRARIES(${PROJECT_NAME}.elf aeabi_idiv aeabi_idivmod -lc_nano)
 
 # define compile flags
 SET_TARGET_PROPERTIES(${PROJECT_NAME}.elf PROPERTIES COMPILE_FLAGS
@@ -106,5 +123,14 @@ ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD
                    COMMAND cat ${PROJECT_SOURCE_DIR}/../../brickletboot/software/build/brickletboot-with-checksum.bin ${PROJECT_NAME}-with-checksum.bin > ${PROJECT_NAME}-with-bootloader.bin)
 
+ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf POST_BUILD COMMAND 
+                   ${CMAKE_OBJDUMP} -D
+                   ${PROJECT_NAME}.elf > statistics.objdump)
+
+ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf POST_BUILD COMMAND 
+                   ${CMAKE_NM} --print-size --size-sort --radix=d
+                   ${PROJECT_NAME}.elf > statistics.function_sizes)
+
 # add preprocessor defines
-ADD_DEFINITIONS(-D__${CHIP}__ -D__${CHIP_FAMILY}__ -Dflash -Dprintf=iprintf) 
+ADD_DEFINITIONS(-D__${CHIP}__ -D__${CHIP_FAMILY}__ -Dflash -Dprintf=iprintf)
+ADD_DEFINITIONS(-DNOSTARTFILES) # No start files (check this for every project, we don't call __libc_init_array if this is defined)
