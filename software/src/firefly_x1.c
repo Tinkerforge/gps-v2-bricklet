@@ -143,13 +143,16 @@ void firefly_x1_handle_state_new_data_received(FireFlyX1 *firefly_x1) {
 	for(uint16_t i = 0; i < FIREFLY_X1_RECV_BUFFER_SIZE; i++) {
 		if(firefly_x1->buffer_recv[i] == '\n') {
 			if(start != i) {
+				last_valid = i;
+				char message[257] = {0};
+				memcpy(message, &firefly_x1->buffer_recv[start], last_valid - start + 1);
+				firefly_x1_handle_sentence(message);
+				uartbb_puts(message);
+//				uartbb_putnl();
+
 				firefly_x1->buffer_recv[i] = '\0';
-				last_valid = i-1;
-				firefly_x1_handle_sentence(&firefly_x1->buffer_recv[start]);
-				uartbb_puts(&firefly_x1->buffer_recv[start]);
-				uartbb_putnl();
 			}
-			start = i+1;
+			start = i + 1;
 		}
 	}
 
