@@ -22,16 +22,17 @@
 #ifndef CONFIG_GPS_H
 #define CONFIG_GPS_H
 
+#include "xmc_device.h"
+
 #define STARTUP_SYSTEM_INIT_ALREADY_DONE
 
 #define UARTBB_USE_PORT_C
+#define UARTBB_TX_PIN P0_5
 
 #define FIRMWARE_VERSION_MAJOR 1
 #define FIRMWARE_VERSION_MINOR 0
 #define FIRMWARE_VERSION_REVISION 0
 
-#include "config_clocks.h"
-#include "config_logging.h"
 #include "config_custom_bootloader.h"
 
 #endif

@@ -21,28 +21,32 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-#include "bricklib2/logging/logging.h"
+
+#include "xmc_scu.h"
+#include "xmc_spi.h"
+#include "xmc_gpio.h"
+#include "configs/config.h"
+
 #include "bricklib2/bootloader/bootloader.h"
-#include "bricklib2/bootloader/tinydma.h"
 #include "bricklib2/hal/system_timer/system_timer.h"
 #include "bricklib2/hal/uartbb/uartbb.h"
 #include "communication.h"
-#include "firefly_x1.h"
+//#include "firefly_x1.h"
 
 #define SYSTEM_TIMER_FREQUENCY 1000 // Use 1 kHz system timer
 
-FireFlyX1 firefly_x1;
+//FireFlyX1 firefly_x1;
 
 int main(void) {
-	system_timer_init(CONF_CLOCK_DPLL_OUTPUT_FREQUENCY, SYSTEM_TIMER_FREQUENCY);
+	system_timer_init(SystemCoreClock, SYSTEM_TIMER_FREQUENCY);
 	uartbb_init();
 	uartbb_puts("Start GPS Bricklet 2.0\n\r");
 
-	firefly_x1_init(&firefly_x1);
+//	firefly_x1_init(&firefly_x1);
 
 	while(true) {
 		bootloader_tick();
-		firefly_x1_tick(&firefly_x1);
+//		firefly_x1_tick(&firefly_x1);
 	}
 
 }

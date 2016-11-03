@@ -1,53 +1,51 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET(PROJECT_NAME gps-v2-bricklet)
-SET(CHIP_FAMILY SAM0)
-SET(CHIP SAMD09D14A)
-SET(MCU cortex-m0plus\ -mthumb)
+SET(CHIP_FAMILY XMC1)
+SET(CHIP XMC1100_T038x0016)
+SET(MCU cortex-m0\ -mthumb)
 PROJECT(${PROJECT_NAME})
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
 # 0 = turn off optimization. s = optimize for size.
 #SET(OPTIMIZATION_LEVEL 0)
-#SET(DEBUG "-g -ggdb")
+SET(DEBUG "-g -ggdb")
 
 SET(OPTIMIZATION_LEVEL s)
-SET(DEBUG "")
+#SET(DEBUG "")
 
 SET(CMAKE_BUILD_TYPE None)
+ENABLE_LANGUAGE(C ASM)
 
 INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/"
-	"${PROJECT_SOURCE_DIR}/src/bricklib2/hal/asf_includes"
-	"${PROJECT_SOURCE_DIR}/src/bricklib2/asf/thirdparty/CMSIS/Include/"
+	"${PROJECT_SOURCE_DIR}/src/bricklib2/xmclib/XMCLib/inc/"
+	"${PROJECT_SOURCE_DIR}/src/bricklib2/xmclib/CMSIS/Include/"
+	"${PROJECT_SOURCE_DIR}/src/bricklib2/xmclib/CMSIS/Infineon/XMC1100_series/Include/"
 )
 
 # find source files
 SET(SOURCES
 	"${PROJECT_SOURCE_DIR}/src/main.c"
-	"${PROJECT_SOURCE_DIR}/src/minmea.c"
-	"${PROJECT_SOURCE_DIR}/src/firefly_x1.c"
 	"${PROJECT_SOURCE_DIR}/src/communication.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib2/protocols/tfp/tfp.c"
-#	"${PROJECT_SOURCE_DIR}/src/bricklib2/logging/logging.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib2/bootloader/tinydma.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib2/bootloader/bootloader.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib2/hal/startup/startup_samd09.c"
+	
 	"${PROJECT_SOURCE_DIR}/src/bricklib2/hal/uartbb/uartbb.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib2/hal/system_timer/system_timer.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib2/asf/common/utils/interrupt/interrupt_sam_nvic.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib2/asf/sam0/drivers/port/port.c"
-#	"${PROJECT_SOURCE_DIR}/src/bricklib2/asf/sam0/drivers/wdt/wdt.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib2/asf_overwrite/sam0/drivers/system/clock/clock_samd09_d10_d11/clock.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib2/asf/sam0/drivers/system/clock/clock_samd09_d10_d11/gclk.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib2/asf/sam0/drivers/system/interrupt/system_interrupt.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib2/asf/sam0/drivers/system/pinmux/pinmux.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib2/asf/sam0/utils/syscalls/gcc/syscalls.c"
-#	"${PROJECT_SOURCE_DIR}/src/bricklib2/asf/sam0/drivers/sercom/usart/usart.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib2/asf_overwrite/sam0/drivers/sercom/sercom.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib2/asf/sam0/drivers/sercom/spi/spi.c"
-#	"${PROJECT_SOURCE_DIR}/src/bricklib2/asf/common/utils/stdio/write.c"
-#	"${PROJECT_SOURCE_DIR}/src/bricklib2/asf/common/utils/stdio/read.c"
+	"${PROJECT_SOURCE_DIR}/src/bricklib2/hal/startup/startup_xmc1.c"
+	"${PROJECT_SOURCE_DIR}/src/bricklib2/hal/startup/startup_xmc1100.S"
+	
+	"${PROJECT_SOURCE_DIR}/src/bricklib2/bootloader/bootloader.c"
+	"${PROJECT_SOURCE_DIR}/src/bricklib2/bootloader/bootloader_xmc_irq.c"
+	"${PROJECT_SOURCE_DIR}/src/bricklib2/protocols/tfp/tfp.c"
+	"${PROJECT_SOURCE_DIR}/src/bricklib2/utility/ringbuffer.c"
+	"${PROJECT_SOURCE_DIR}/src/bricklib2/utility/pearson_hash.c"
+
+	"${PROJECT_SOURCE_DIR}/src/bricklib2/xmclib/XMCLib/src/xmc_gpio.c"
+	"${PROJECT_SOURCE_DIR}/src/bricklib2/xmclib/XMCLib/src/xmc1_gpio.c"
+	"${PROJECT_SOURCE_DIR}/src/bricklib2/xmclib/XMCLib/src/xmc_spi.c"
+	"${PROJECT_SOURCE_DIR}/src/bricklib2/xmclib/XMCLib/src/xmc_usic.c"
+	"${PROJECT_SOURCE_DIR}/src/bricklib2/xmclib/XMCLib/src/xmc1_scu.c"
+	"${PROJECT_SOURCE_DIR}/src/bricklib2/xmclib/XMCLib/src/xmc1_flash.c"
 )
 
 MESSAGE(STATUS "\nFound following source files:\n ${SOURCES}\n")
@@ -72,17 +70,17 @@ SET_TARGET_PROPERTIES(aeabi_idivmod PROPERTIES COMPILE_FLAGS "-mcpu=${MCU} -O${O
 ADD_LIBRARY(aeabi_uidivmod "${PROJECT_SOURCE_DIR}/src/bricklib2/bootloader/libgcc/aeabi_uidivmod.c")
 SET_TARGET_PROPERTIES(aeabi_uidivmod PROPERTIES COMPILE_FLAGS "-mcpu=${MCU} -O${OPTIMIZATION_LEVEL}")
 
+#TARGET_LINK_LIBRARIES(${PROJECT_NAME}.elf -lc_nano)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}.elf aeabi_idiv aeabi_uidiv aeabi_idivmod aeabi_uidivmod -lc_nano)
-#TARGET_LINK_LIBRARIES(${PROJECT_NAME}.elf aeabi_idiv aeabi_idivmod -lc_nano)
 
 # define compile flags
 SET_TARGET_PROPERTIES(${PROJECT_NAME}.elf PROPERTIES COMPILE_FLAGS
-	"${DEBUG} -mcpu=${MCU} -std=gnu99 -Wall --specs=nano.specs -mlong-calls -ffunction-sections -fdata-sections -O${OPTIMIZATION_LEVEL}"
+	"${DEBUG} -mcpu=${MCU} -std=gnu99  -Wall --specs=nano.specs -mlong-calls -ffunction-sections -fdata-sections -O${OPTIMIZATION_LEVEL}"
 )
 
 #define linker flags
 SET_TARGET_PROPERTIES(${PROJECT_NAME}.elf PROPERTIES LINK_FLAGS
-	"-nostartfiles -mcpu=${MCU} -Wl,--gc-sections -T\"${PROJECT_SOURCE_DIR}/src/bricklib2/linker_script/samd09_firmware_with_brickletboot.ld\" "
+	"-nostartfiles -mcpu=${MCU} -Wl,--gc-sections -T\"${PROJECT_SOURCE_DIR}/src/bricklib2/linker_script/xmc1100_firmware_with_brickletboot.ld\" "
 )
 
 # touch main.c to make sure that all of the custom POST_BUILD commands are definitely called
@@ -108,20 +106,20 @@ ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD
-                   COMMAND cp ${PROJECT_SOURCE_DIR}/src/configs/config_custom_bootloader.h ${PROJECT_SOURCE_DIR}/../../brickletboot/software/src/configs)
+                   COMMAND cp ${PROJECT_SOURCE_DIR}/src/configs/config_custom_bootloader.h ${PROJECT_SOURCE_DIR}/../../brickletboot_xmc/software/src/configs)
                    
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD 
-                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../../brickletboot/software/build
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../../brickletboot_xmc/software/build
                    COMMAND make clean && make)
 
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD
-                   COMMAND rm ${PROJECT_SOURCE_DIR}/../../brickletboot/software/src/configs/config_custom_bootloader.h)
+                   COMMAND rm ${PROJECT_SOURCE_DIR}/../../brickletboot_xmc/software/src/configs/config_custom_bootloader.h)
 
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD
-                   COMMAND cat ${PROJECT_SOURCE_DIR}/../../brickletboot/software/build/brickletboot-with-checksum.bin ${PROJECT_NAME}-with-checksum.bin > ${PROJECT_NAME}-with-bootloader.bin)
+                   COMMAND cat ${PROJECT_SOURCE_DIR}/../../brickletboot_xmc/software/build/brickletboot-with-checksum.bin ${PROJECT_NAME}-with-checksum.bin > ${PROJECT_NAME}-with-bootloader.bin)
 
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf POST_BUILD COMMAND 
                    ${CMAKE_OBJDUMP} -D
@@ -132,5 +130,4 @@ ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf POST_BUILD COMMAND
                    ${PROJECT_NAME}.elf > statistics.function_sizes)
 
 # add preprocessor defines
-ADD_DEFINITIONS(-D__${CHIP}__ -D__${CHIP_FAMILY}__ -Dflash -Dprintf=iprintf)
-ADD_DEFINITIONS(-DNOSTARTFILES) # No start files (check this for every project, we don't call __libc_init_array if this is defined)
+ADD_DEFINITIONS(-D${CHIP} -D__${CHIP_FAMILY}__ -DNOSTARTFILES -D__SKIP_LIBC_INIT_ARRAY)
