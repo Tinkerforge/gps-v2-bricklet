@@ -88,14 +88,16 @@ ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    PRE_BUILD
                    COMMAND touch ${PROJECT_SOURCE_DIR}/src/main.c)
 
+
+
+# Make firmware
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf 
-                   POST_BUILD 
+                   POST_BUILD
                    COMMAND ${CMAKE_OBJCOPY} -S -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin)
 
-ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
-                   POST_BUILD
-                   COMMAND ${CMAKE_SIZE} ${OBJECT} ${PROJECT_NAME}.elf)
 
+
+# Add CRC to end of firmware
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD
                    COMMAND ${PROJECT_SOURCE_DIR}/src/bricklib2/bootloader/crc32.py ${PROJECT_NAME}.bin > ${PROJECT_NAME}-checksum.bin)
@@ -103,11 +105,14 @@ ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD
                    COMMAND cat ${PROJECT_NAME}.bin ${PROJECT_NAME}-checksum.bin > ${PROJECT_NAME}-with-checksum.bin)
-                   
+
+
+
+# Make bootloader for firmware
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD
                    COMMAND cp ${PROJECT_SOURCE_DIR}/src/configs/config_custom_bootloader.h ${PROJECT_SOURCE_DIR}/../../brickletboot_xmc/software/src/configs)
-                   
+
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD 
                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../../brickletboot_xmc/software/build
@@ -121,6 +126,33 @@ ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD
                    COMMAND cat ${PROJECT_SOURCE_DIR}/../../brickletboot_xmc/software/build/brickletboot-with-checksum.bin ${PROJECT_NAME}-with-checksum.bin > ${PROJECT_NAME}-with-bootloader.bin)
 
+
+
+# Make bootstrapper for firmware
+ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
+                   POST_BUILD
+                   COMMAND cp ${PROJECT_SOURCE_DIR}/src/configs/config_custom_bootstrapper.h ${PROJECT_SOURCE_DIR}/../../bootstrapper_xmc/software/src/configs)
+
+ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
+                   POST_BUILD
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bootstrapper_xmc/software/build
+                   COMMAND make clean && make)
+
+ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
+                   POST_BUILD
+                   COMMAND rm ${PROJECT_SOURCE_DIR}/../../bootstrapper_xmc/software/src/configs/config_custom_bootstrapper.h)
+
+ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
+                   POST_BUILD
+                   COMMAND cp ${PROJECT_SOURCE_DIR}/../../bootstrapper_xmc/software/build/bootstrapper.bin ${PROJECT_NAME}-with-checksum.bin > ${PROJECT_NAME}-bootstrapper.bin)
+
+
+
+# Make firmware infos
+ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
+                   POST_BUILD
+                   COMMAND ${CMAKE_SIZE} ${OBJECT} ${PROJECT_NAME}.elf)
+
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf POST_BUILD COMMAND 
                    ${CMAKE_OBJDUMP} -D
                    ${PROJECT_NAME}.elf > statistics.objdump)
@@ -128,6 +160,8 @@ ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf POST_BUILD COMMAND
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf POST_BUILD COMMAND 
                    ${CMAKE_NM} --print-size --size-sort --radix=d
                    ${PROJECT_NAME}.elf > statistics.function_sizes)
+
+
 
 # add preprocessor defines
 ADD_DEFINITIONS(-D${CHIP} -D__${CHIP_FAMILY}__ -DNOSTARTFILES -D__SKIP_LIBC_INIT_ARRAY)
