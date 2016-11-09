@@ -144,7 +144,7 @@ ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
 
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD
-                   COMMAND cp ${PROJECT_SOURCE_DIR}/../../bootstrapper_xmc/software/build/bootstrapper.bin ${PROJECT_NAME}-with-checksum.bin > ${PROJECT_NAME}-bootstrapper.bin)
+                   COMMAND cp ${PROJECT_SOURCE_DIR}/../../bootstrapper_xmc/software/build/bootstrapper.bin ${PROJECT_NAME}-bootstrapper.bin)
 
 
 
