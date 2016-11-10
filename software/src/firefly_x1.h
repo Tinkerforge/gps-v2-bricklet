@@ -22,8 +22,7 @@
 #ifndef FIREFLY_X1_H
 #define FIREFLY_X1_H
 
-#include "bricklib2/bootloader/tinydma.h"
-#include "bricklib2/bootloader/bootloader.h"
+#include <stdint.h>
 
 #define FIREFLY_X1_RECV_BUFFER_SIZE 256
 #define FIREFLY_X1_SEND_BUFFER_SIZE 256
@@ -36,10 +35,10 @@ typedef enum {
 } FireFlyX1State;
 
 typedef struct {
-	struct spi_module spi_module;
-	struct spi_slave_inst slave;
 	char buffer_recv[FIREFLY_X1_RECV_BUFFER_SIZE];
 	char buffer_send[FIREFLY_X1_SEND_BUFFER_SIZE];
+	uint16_t buffer_recv_index;
+	uint16_t buffer_send_index;
 	FireFlyX1State state;
 	uint32_t wait_8ms_start_time;
 } FireFlyX1;

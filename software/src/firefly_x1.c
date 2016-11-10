@@ -21,7 +21,9 @@
 
 #include "firefly_x1.h"
 
-#include "spi.h"
+#include "xmc_spi.h"
+#include "xmc_gpio.h"
+
 #include "bricklib2/utility/ringbuffer.h"
 #include "bricklib2/protocols/tfp/tfp.h"
 #include "bricklib2/hal/system_timer/system_timer.h"
@@ -31,83 +33,175 @@
 
 #include "minmea.h"
 
+extern FireFlyX1 firefly_x1;
+
+#define firefly_x1_rx_irq_handler IRQ_Hdlr_11
+#define firefly_x1_tx_irq_handler IRQ_Hdlr_12
+
+void /*__attribute__((optimize("-O3")))*/ firefly_x1_rx_irq_handler(void) {
+//	uartbb_puts("irq rx\n\r");
+
+	while(!XMC_USIC_CH_RXFIFO_IsEmpty(FIREFLY_X1_USIC)) {
+		firefly_x1.buffer_recv[firefly_x1.buffer_recv_index] = FIREFLY_X1_USIC->OUTR;
+		firefly_x1.buffer_recv_index++;
+		if(firefly_x1.buffer_recv_index == FIREFLY_X1_RECV_BUFFER_SIZE) {
+			XMC_SPI_CH_DisableSlaveSelect(FIREFLY_X1_USIC);
+		}
+	}
+
+
+}
+
+void /*__attribute__((optimize("-O3")))*/ firefly_x1_tx_irq_handler(void) {
+//	uartbb_puts("irq tx\n\r");
+	while(!XMC_USIC_CH_TXFIFO_IsFull(FIREFLY_X1_USIC)) {
+		FIREFLY_X1_USIC->IN[0] = firefly_x1.buffer_send[firefly_x1.buffer_send_index];
+		firefly_x1.buffer_send_index++;
+		if(firefly_x1.buffer_send_index == FIREFLY_X1_SEND_BUFFER_SIZE) {
+			XMC_USIC_CH_TXFIFO_DisableEvent(FIREFLY_X1_USIC, XMC_USIC_CH_TXFIFO_EVENT_CONF_STANDARD);
+//			uartbb_puts("buffer send\n\r");
+			return;
+		}
+	}
+//	uartbb_puts("irq tx full\n\r");
+}
+
+
 void firefly_x1_init(FireFlyX1 *firefly_x1) {
-	// Configure default state
+	// Initialize struct
+	memset(firefly_x1->buffer_recv, 0, FIREFLY_X1_RECV_BUFFER_SIZE);
+	memset(firefly_x1->buffer_send, 0, FIREFLY_X1_RECV_BUFFER_SIZE);
+	firefly_x1->buffer_send_index = 0;
 	firefly_x1->state = FIREFLY_X1_STATE_WAIT_FOR_INTERRUPT;
+	firefly_x1->wait_8ms_start_time = 0;
 
-	// Configure interrupt and reset pins
-	struct port_config pin_conf;
+	// USIC channel configuration
+	const XMC_SPI_CH_CONFIG_t channel_config = {
+		.baudrate       = 100000,
+		.bus_mode       = XMC_SPI_CH_BUS_MODE_MASTER,
+		.selo_inversion = XMC_SPI_CH_SLAVE_SEL_INV_TO_MSLS,
+		.parity_mode    = XMC_USIC_CH_PARITY_MODE_NONE
+	};
 
-	port_get_config_defaults(&pin_conf);
-	port_pin_set_config(FIREFLY_X1_PIN_INTERRUPT, &pin_conf);
+	// MISO pin configuration
+	const XMC_GPIO_CONFIG_t mosi_pin_config = {
+	  .mode             = FIREFLY_X1_MOSI_PIN_AF,
+	  .output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH
+	};
 
-	pin_conf.direction = PORT_PIN_DIR_OUTPUT;
-	port_pin_set_config(FIREFLY_X1_PIN_NRESET, &pin_conf);
-	port_pin_set_output_level(FIREFLY_X1_PIN_NRESET, true);
+	// MOSI pin configuration
+	const XMC_GPIO_CONFIG_t miso_pin_config = {
+	  .mode             = XMC_GPIO_MODE_INPUT_TRISTATE,
+	  .input_hysteresis = XMC_GPIO_INPUT_HYSTERESIS_STANDARD
+	};
 
-	// Configure and enable SERCOM SPI module
-	struct spi_slave_inst_config slave_dev_config;
-	spi_slave_inst_get_config_defaults(&slave_dev_config);
-	slave_dev_config.ss_pin = FIREFLY_X1_SPI_SS_PIN;
-	spi_attach_slave(&firefly_x1->slave, &slave_dev_config);
+	// SCLK pin configuration
+	const XMC_GPIO_CONFIG_t sclk_pin_config = {
+	  .mode             = FIREFLY_X1_SCLK_PIN_AF,
+	  .output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH
+	};
 
-	struct spi_config firefly_x1_spi_config;
-	spi_get_config_defaults(&firefly_x1_spi_config);
+	// SELECT pin configuration
+	const XMC_GPIO_CONFIG_t select_pin_config = {
+	  .mode             = FIREFLY_X1_SELECT_PIN_AF,
+	  .output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH
+	};
 
-	firefly_x1_spi_config.master_slave_select_enable = false;
-	firefly_x1_spi_config.mode = SPI_MODE_MASTER;
-	firefly_x1_spi_config.transfer_mode = SPI_TRANSFER_MODE_3;
+	// Interrupt pin configuration
+	const XMC_GPIO_CONFIG_t interrupt_pin_config = {
+	  .mode             = XMC_GPIO_MODE_INPUT_TRISTATE,
+	  .output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH,
+	  .input_hysteresis = XMC_GPIO_INPUT_HYSTERESIS_STANDARD
+	};
 
-	firefly_x1_spi_config.mode_specific.master.baudrate = FIREFLY_X1_SPI_SPEED;
+	// Reset pin configuration
+	const XMC_GPIO_CONFIG_t nreset_pin_config = {
+	  .mode             = XMC_GPIO_MODE_OUTPUT_PUSH_PULL,
+	  .output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH, // not reset
+	};
 
-	firefly_x1_spi_config.mux_setting = FIREFLY_X1_SPI_SIGNALMUX_SETTING; // DOPO=0, DIPO=3
-	firefly_x1_spi_config.pinmux_pad0 = FIREFLY_X1_PINMUX_PAD0;  // PA22, MOSI
-	firefly_x1_spi_config.pinmux_pad1 = FIREFLY_X1_PINMUX_PAD1;  // PA23, CLK
+	// PPS pin configuration
+	const XMC_GPIO_CONFIG_t pps_pin_config = {
+	  .mode             = XMC_GPIO_MODE_INPUT_TRISTATE,
+	  .output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH,
+	  .input_hysteresis = XMC_GPIO_INPUT_HYSTERESIS_STANDARD
+	};
 
-	// We don't use the hardware SS, since it selects/deselects between each byte...
-	firefly_x1_spi_config.pinmux_pad2 = PINMUX_UNUSED; //FIREFLY_X1_PINMUX_PAD2;  // PA24, SS
-	firefly_x1_spi_config.pinmux_pad3 = FIREFLY_X1_PINMUX_PAD3;  // PA25, MISO
+	// Configure GPIO pins
+	XMC_GPIO_Init(FIREFLY_X1_INTERRUPT_PIN, &interrupt_pin_config);
+	XMC_GPIO_Init(FIREFLY_X1_NRESET_PIN, &nreset_pin_config);
+	XMC_GPIO_Init(FIREFLY_X1_PPS_PIN, &pps_pin_config);
 
-	bootloader_spi_init(&firefly_x1->spi_module, FIREFLY_X1_SPI_MODULE, &firefly_x1_spi_config);
-	spi_enable(&firefly_x1->spi_module);
+	// Configure MISO pin
+	XMC_GPIO_Init(FIREFLY_X1_MOSI_PIN, &miso_pin_config);
 
-	// Configure SPI rx channel
-	TinyDmaChannelConfig firefly_x1_channel_config_rx;
-	bootloader_tinydma_get_channel_config_defaults(&firefly_x1_channel_config_rx);
-	firefly_x1_channel_config_rx.trigger_action = DMA_TRIGGER_ACTION_BEAT;
-	firefly_x1_channel_config_rx.peripheral_trigger = SERCOM1_DMAC_ID_RX;
-	bootloader_tinydma_channel_init(FIREFLY_X1_RX_INDEX, &firefly_x1_channel_config_rx);
+	// Initialize USIC channel in SPI master mode
+	XMC_SPI_CH_Init(FIREFLY_X1_USIC, &channel_config);
+	FIREFLY_X1_USIC->SCTR &= ~USIC_CH_SCTR_PDL_Msk; // Set passive data level to 0
 
-	// Configure SPI tx channel
-	TinyDmaChannelConfig firefly_x1_channel_config_tx;
-	bootloader_tinydma_get_channel_config_defaults(&firefly_x1_channel_config_tx);
-	firefly_x1_channel_config_tx.trigger_action = DMA_TRIGGER_ACTION_BEAT;
-	firefly_x1_channel_config_tx.peripheral_trigger = SERCOM1_DMAC_ID_TX;
-	bootloader_tinydma_channel_init(FIREFLY_X1_TX_INDEX, &firefly_x1_channel_config_tx);
+	XMC_SPI_CH_SetBitOrderMsbFirst(FIREFLY_X1_USIC);
 
-	// Configure SPI rx descriptor
-	TinyDmaDescriptorConfig firefly_x1_descriptor_config_rx;
-	bootloader_tinydma_descriptor_get_config_defaults(&firefly_x1_descriptor_config_rx);
-	firefly_x1_descriptor_config_rx.beat_size = DMA_BEAT_SIZE_BYTE;
-	firefly_x1_descriptor_config_rx.src_increment_enable = false;
-	firefly_x1_descriptor_config_rx.step_selection = DMA_STEPSEL_DST;
-	firefly_x1_descriptor_config_rx.block_transfer_count = FIREFLY_X1_RECV_BUFFER_SIZE;
-	firefly_x1_descriptor_config_rx.destination_address = (uint32_t)(firefly_x1->buffer_recv + FIREFLY_X1_RECV_BUFFER_SIZE);
-	firefly_x1_descriptor_config_rx.source_address = (uint32_t)(&firefly_x1->spi_module.hw->SPI.DATA.reg);
-	bootloader_tinydma_descriptor_init(&bootloader_status.st.descriptor_section[FIREFLY_X1_RX_INDEX], &firefly_x1_descriptor_config_rx);
+	XMC_SPI_CH_SetWordLength(FIREFLY_X1_USIC, (uint8_t)8U);
+	XMC_SPI_CH_SetFrameLength(FIREFLY_X1_USIC, (uint8_t)64U);
 
-	// Configure SPI tx descriptor
-	TinyDmaDescriptorConfig firefly_x1_descriptor_config_tx;
-	bootloader_tinydma_descriptor_get_config_defaults(&firefly_x1_descriptor_config_tx);
-	firefly_x1_descriptor_config_tx.beat_size = DMA_BEAT_SIZE_BYTE;
-	firefly_x1_descriptor_config_tx.dst_increment_enable = false;
-	firefly_x1_descriptor_config_tx.step_selection = DMA_STEPSEL_SRC;
-	firefly_x1_descriptor_config_tx.block_transfer_count = FIREFLY_X1_SEND_BUFFER_SIZE;
-	firefly_x1_descriptor_config_tx.source_address = (uint32_t)(firefly_x1->buffer_send + FIREFLY_X1_SEND_BUFFER_SIZE);
-	firefly_x1_descriptor_config_tx.destination_address = (uint32_t)(&firefly_x1->spi_module.hw->SPI.DATA.reg);
-	bootloader_tinydma_descriptor_init(&bootloader_status.st.descriptor_section[FIREFLY_X1_TX_INDEX], &firefly_x1_descriptor_config_tx);
+	XMC_SPI_CH_SetTransmitMode(FIREFLY_X1_USIC, XMC_SPI_CH_MODE_STANDARD);
 
-	memset(firefly_x1->buffer_send, 0, FIREFLY_X1_SEND_BUFFER_SIZE);
+	// Configure the clock polarity and clock delay
+	XMC_SPI_CH_ConfigureShiftClockOutput(FIREFLY_X1_USIC,
+									     XMC_SPI_CH_BRG_SHIFT_CLOCK_PASSIVE_LEVEL_1_DELAY_DISABLED,
+									     XMC_SPI_CH_BRG_SHIFT_CLOCK_OUTPUT_SCLK);
+	// Configure Leading/Trailing delay
+	XMC_SPI_CH_SetSlaveSelectDelay(FIREFLY_X1_USIC, 2);
+
+
+	// Set input source path
+	XMC_SPI_CH_SetInputSource(FIREFLY_X1_USIC, FIREFLY_X1_MISO_INPUT, FIREFLY_X1_MISO_SOURCE);
+
+	// SPI Mode: CPOL=1 and CPHA=1
+	FIREFLY_X1_USIC_CHANNEL->DX1CR |= USIC_CH_DX1CR_DPOL_Msk;
+
+	// TODO: this is probably not needed
+	  XMC_USIC_CH_SetInterruptNodePointer(FIREFLY_X1_USIC,
+	                                      XMC_USIC_CH_INTERRUPT_NODE_POINTER_PROTOCOL,
+	                                      (uint32_t)FIREFLY_X1_SERVICE_REQUEST_TX);
+
+	// Configure transmit FIFO
+	XMC_USIC_CH_TXFIFO_Configure(FIREFLY_X1_USIC, 48, XMC_USIC_CH_FIFO_SIZE_16WORDS, 8);
+
+	// Configure receive FIFO
+	XMC_USIC_CH_RXFIFO_Configure(FIREFLY_X1_USIC, 32, XMC_USIC_CH_FIFO_SIZE_16WORDS, 0);
+//	FIREFLY_X1_USIC->RBCTR |= USIC_CH_RBCTR_SRBTM_Msk; // RX Interrupt for >= 0
+
+	// Set service request for tx FIFO transmit interrupt
+	XMC_USIC_CH_TXFIFO_SetInterruptNodePointer(FIREFLY_X1_USIC, XMC_USIC_CH_TXFIFO_INTERRUPT_NODE_POINTER_STANDARD, FIREFLY_X1_SERVICE_REQUEST_TX);  // IRQ FIREFLY_X1_IRQ_TX
+
+	// Set service request for rx FIFO receive interrupt
+	XMC_USIC_CH_RXFIFO_SetInterruptNodePointer(FIREFLY_X1_USIC, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_STANDARD, FIREFLY_X1_SERVICE_REQUEST_RX);  // IRQ FIREFLY_X1_IRQ_RX
+	XMC_USIC_CH_RXFIFO_SetInterruptNodePointer(FIREFLY_X1_USIC, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_ALTERNATE, FIREFLY_X1_SERVICE_REQUEST_RX); // IRQ FIREFLY_X1_IRQ_RX
+
+	//Set priority and enable NVIC node for transmit interrupt
+	NVIC_SetPriority((IRQn_Type)FIREFLY_X1_IRQ_TX, FIREFLY_X1_IRQ_TX_PRIORITY);
+	NVIC_EnableIRQ((IRQn_Type)FIREFLY_X1_IRQ_TX);
+
+	// Set priority and enable NVIC node for receive interrupt
+	NVIC_SetPriority((IRQn_Type)FIREFLY_X1_IRQ_RX, FIREFLY_X1_IRQ_RX_PRIORITY);
+	NVIC_EnableIRQ((IRQn_Type)FIREFLY_X1_IRQ_RX);
+
+	// Start SPI
+	XMC_SPI_CH_Start(FIREFLY_X1_USIC);
+
+	// Configure SCLK pin
+	XMC_GPIO_Init(FIREFLY_X1_SCLK_PIN, &sclk_pin_config);
+
+	// Configure slave select pin
+	XMC_GPIO_Init(FIREFLY_X1_SELECT_PIN, &select_pin_config);
+
+	//Configure MOSI pin
+	XMC_GPIO_Init(FIREFLY_X1_MOSI_PIN, &mosi_pin_config);
+
+	//XMC_USIC_CH_EnableEvent(FIREFLY_X1_USIC, (uint32_t)((uint32_t)XMC_USIC_CH_EVENT_STANDARD_RECEIVE | (uint32_t)XMC_USIC_CH_EVENT_ALTERNATIVE_RECEIVE));
+	XMC_USIC_CH_RXFIFO_EnableEvent(FIREFLY_X1_USIC, XMC_USIC_CH_RXFIFO_EVENT_CONF_STANDARD | XMC_USIC_CH_RXFIFO_EVENT_CONF_ALTERNATE);
+
 }
 
 void firefly_x1_handle_sentence(const char *sentence) {
@@ -117,21 +211,26 @@ void firefly_x1_handle_sentence(const char *sentence) {
 
 void firefly_x1_handle_state_wait_for_interrupt(FireFlyX1 *firefly_x1) {
 	// Interrupt = pin LOW
-	if(!port_pin_get_input_level(FIREFLY_X1_PIN_INTERRUPT)) {
-		spi_select_slave(&firefly_x1->spi_module, &firefly_x1->slave, true);
-		bootloader_tinydma_start_transfer(FIREFLY_X1_RX_INDEX);
-		bootloader_tinydma_start_transfer(FIREFLY_X1_TX_INDEX);
+	if(!XMC_GPIO_GetInput(FIREFLY_X1_INTERRUPT_PIN)) {
+		memset(firefly_x1->buffer_send, 0xAA, FIREFLY_X1_SEND_BUFFER_SIZE);
+
+		// Start transfer
+		firefly_x1->buffer_recv_index = 0;
+		firefly_x1->buffer_send_index = 0;
+		XMC_SPI_CH_EnableSlaveSelect(FIREFLY_X1_USIC, XMC_SPI_CH_SLAVE_SELECT_0);
+		XMC_USIC_CH_TXFIFO_EnableEvent(FIREFLY_X1_USIC, XMC_USIC_CH_TXFIFO_EVENT_CONF_STANDARD);
+		XMC_USIC_CH_TriggerServiceRequest(FIREFLY_X1_USIC, FIREFLY_X1_SERVICE_REQUEST_TX);
 
 		firefly_x1->state = FIREFLY_X1_STATE_RECEIVE_IN_PROGRESS;
 	}
 }
 
 void firefly_x1_handle_state_receive_in_progress(FireFlyX1 *firefly_x1) {
-	const uint32_t count = TINYDMA_CURRENT_BUFFER_COUNT_FOR_CHANNEL(FIREFLY_X1_RX_INDEX);
-	if(count == 0) {
+	if(firefly_x1->buffer_recv_index == FIREFLY_X1_RECV_BUFFER_SIZE) {
 		firefly_x1->state = FIREFLY_X1_STATE_NEW_DATA_RECEIVED;
-		spi_select_slave(&firefly_x1->spi_module, &firefly_x1->slave, false);
+		XMC_USIC_CH_TXFIFO_DisableEvent(FIREFLY_X1_USIC, XMC_USIC_CH_TXFIFO_EVENT_CONF_STANDARD);
 	}
+
 }
 
 void firefly_x1_handle_state_new_data_received(FireFlyX1 *firefly_x1) {
