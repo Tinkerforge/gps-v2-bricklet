@@ -24,24 +24,76 @@
 
 #include <stdint.h>
 
-#define FIREFLY_X1_RECV_BUFFER_SIZE 256
+#include "minmea.h"
+#include "bricklib2/utility/ringbuffer.h"
+
+#define FIREFLY_X1_MAX_SENTENCE_LENGTH 512
+
+#define FIREFLY_X1_RECV_BUFFER_SIZE 1024
 #define FIREFLY_X1_SEND_BUFFER_SIZE 256
+
+#define FIREFLY_X1_RECV_BUFFER_MASK (FIREFLY_X1_RECV_BUFFER_SIZE-1) // Use power of two size only here!
+
+#define FIREFLY_X1_MAX_SAT_NUM 32
+
+typedef struct {
+    char mode;
+    int fix_type;
+    int sats[12];
+    struct minmea_float pdop;
+    struct minmea_float hdop;
+    struct minmea_float vdop;
+
+    struct minmea_sat_info sat_info[FIREFLY_X1_MAX_SAT_NUM];
+} FireFlyX1DataSingle;
+
+typedef struct {
+    struct minmea_time time;
+    bool valid;
+    struct minmea_float latitude;
+    struct minmea_float longitude;
+    struct minmea_float speed;
+    struct minmea_float course;
+    struct minmea_date date;
+    struct minmea_float variation;
+    int fix_quality;
+    int satellites_tracked;
+    struct minmea_float hdop;
+    struct minmea_float altitude; char altitude_units;
+    struct minmea_float height; char height_units;
+    int dgps_age;
+    struct minmea_float true_track_degrees;
+    struct minmea_float magnetic_track_degrees;
+    struct minmea_float speed_knots;
+    struct minmea_float speed_kph;
+    enum minmea_faa_mode faa_mode;
+} FireFlyX1DataMixed;
 
 typedef enum {
 	FIREFLY_X1_STATE_WAIT_FOR_INTERRUPT,
 	FIREFLY_X1_STATE_RECEIVE_IN_PROGRESS,
 	FIREFLY_X1_STATE_WAIT_8MS,
-	FIREFLY_X1_STATE_NEW_DATA_RECEIVED,
 } FireFlyX1State;
 
 typedef struct {
+	Ringbuffer ringbuffer_recv;
 	char buffer_recv[FIREFLY_X1_RECV_BUFFER_SIZE];
 	char buffer_send[FIREFLY_X1_SEND_BUFFER_SIZE];
-	uint16_t buffer_recv_index;
+	uint16_t buffer_recv_counter;
 	uint16_t buffer_send_index;
 	FireFlyX1State state;
 	uint32_t wait_8ms_start_time;
+
+	FireFlyX1DataMixed mixed;
+	FireFlyX1DataSingle gps;
+	FireFlyX1DataSingle glonass;
 } FireFlyX1;
+
+typedef enum {
+	TALKER_MIXED,
+	TALKER_GPS,
+	TALKER_GLONASS
+} FireFlyX1Talker;
 
 
 void firefly_x1_init(FireFlyX1 *firefly_x1);
