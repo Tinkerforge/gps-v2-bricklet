@@ -24,7 +24,7 @@
 
 #include "bricklib2/bootloader/bootloader.h"
 
-BootloaderHandleMessageReturn handle_message(const void *data, void *return_message);
+BootloaderHandleMessageResponse handle_message(const void *data, void *response);
 
 
 #define FID_GET_COORDINATES 1
@@ -43,11 +43,12 @@ BootloaderHandleMessageReturn handle_message(const void *data, void *return_mess
 #define FID_GET_MOTION_CALLBACK_PERIOD 14
 #define FID_SET_DATE_TIME_CALLBACK_PERIOD 15
 #define FID_GET_DATE_TIME_CALLBACK_PERIOD 16
-#define FID_COORDINATES 17
-#define FID_STATUS 18
-#define FID_ALTITUDE 19
-#define FID_MOTION 20
-#define FID_DATE_TIME 21
+
+#define FID_CALLBACK_COORDINATES 17
+#define FID_CALLBACK_STATUS 18
+#define FID_CALLBACK_ALTITUDE 19
+#define FID_CALLBACK_MOTION 20
+#define FID_CALLBACK_DATE_TIME 21
 
 
 typedef struct {
@@ -64,7 +65,7 @@ typedef struct {
 	uint16_t hdop;
 	uint16_t vdop;
 	uint16_t epe;
-} __attribute__((__packed__)) GetCoordinatesReturn;
+} __attribute__((__packed__)) GetCoordinatesResponse;
 
 typedef struct {
 	TFPMessageHeader header;
@@ -75,7 +76,7 @@ typedef struct {
 	uint8_t fix;
 	uint8_t satellites_view;
 	uint8_t satellites_used;
-} __attribute__((__packed__)) GetStatusReturn;
+} __attribute__((__packed__)) GetStatusResponse;
 
 typedef struct {
 	TFPMessageHeader header;
@@ -83,9 +84,9 @@ typedef struct {
 
 typedef struct {
 	TFPMessageHeader header;
-	uint32_t altitude;
-	uint32_t geoidal_separation;
-} __attribute__((__packed__)) GetAltitudeReturn;
+	int32_t altitude;
+	int32_t geoidal_separation;
+} __attribute__((__packed__)) GetAltitudeResponse;
 
 typedef struct {
 	TFPMessageHeader header;
@@ -95,7 +96,7 @@ typedef struct {
 	TFPMessageHeader header;
 	uint32_t course;
 	uint32_t speed;
-} __attribute__((__packed__)) GetMotionReturn;
+} __attribute__((__packed__)) GetMotionResponse;
 
 typedef struct {
 	TFPMessageHeader header;
@@ -105,7 +106,7 @@ typedef struct {
 	TFPMessageHeader header;
 	uint32_t date;
 	uint32_t time;
-} __attribute__((__packed__)) GetDateTimeReturn;
+} __attribute__((__packed__)) GetDateTimeResponse;
 
 typedef struct {
 	TFPMessageHeader header;
@@ -124,7 +125,7 @@ typedef struct {
 typedef struct {
 	TFPMessageHeader header;
 	uint32_t period;
-} __attribute__((__packed__)) GetCoordinatesCallbackPeriodReturn;
+} __attribute__((__packed__)) GetCoordinatesCallbackPeriodResponse;
 
 typedef struct {
 	TFPMessageHeader header;
@@ -138,7 +139,7 @@ typedef struct {
 typedef struct {
 	TFPMessageHeader header;
 	uint32_t period;
-} __attribute__((__packed__)) GetStatusCallbackPeriodReturn;
+} __attribute__((__packed__)) GetStatusCallbackPeriodResponse;
 
 typedef struct {
 	TFPMessageHeader header;
@@ -152,7 +153,7 @@ typedef struct {
 typedef struct {
 	TFPMessageHeader header;
 	uint32_t period;
-} __attribute__((__packed__)) GetAltitudeCallbackPeriodReturn;
+} __attribute__((__packed__)) GetAltitudeCallbackPeriodResponse;
 
 typedef struct {
 	TFPMessageHeader header;
@@ -166,7 +167,7 @@ typedef struct {
 typedef struct {
 	TFPMessageHeader header;
 	uint32_t period;
-} __attribute__((__packed__)) GetMotionCallbackPeriodReturn;
+} __attribute__((__packed__)) GetMotionCallbackPeriodResponse;
 
 typedef struct {
 	TFPMessageHeader header;
@@ -180,7 +181,7 @@ typedef struct {
 typedef struct {
 	TFPMessageHeader header;
 	uint32_t period;
-} __attribute__((__packed__)) GetDateTimeCallbackPeriodReturn;
+} __attribute__((__packed__)) GetDateTimeCallbackPeriodResponse;
 
 typedef struct {
 	TFPMessageHeader header;
@@ -192,53 +193,51 @@ typedef struct {
 	uint16_t hdop;
 	uint16_t vdop;
 	uint16_t epe;
-} __attribute__((__packed__)) Coordinates;
+} __attribute__((__packed__)) CoordinatesCallback;
 
 typedef struct {
 	TFPMessageHeader header;
 	uint8_t fix;
 	uint8_t satellites_view;
 	uint8_t satellites_used;
-} __attribute__((__packed__)) Status;
+} __attribute__((__packed__)) StatusCallback;
 
 typedef struct {
 	TFPMessageHeader header;
-	uint32_t altitude;
-	uint32_t geoidal_separation;
-} __attribute__((__packed__)) Altitude;
+	int32_t altitude;
+	int32_t geoidal_separation;
+} __attribute__((__packed__)) AltitudeCallback;
 
 typedef struct {
 	TFPMessageHeader header;
 	uint32_t course;
 	uint32_t speed;
-} __attribute__((__packed__)) Motion;
+} __attribute__((__packed__)) MotionCallback;
 
 typedef struct {
 	TFPMessageHeader header;
 	uint32_t date;
 	uint32_t time;
-} __attribute__((__packed__)) DateTime;
+} __attribute__((__packed__)) DateTimeCallback;
 
-typedef struct {
-	TFPMessageHeader header;
-} __attribute__((__packed__)) StandardMessage;
 
-BootloaderHandleMessageReturn get_coordinates(const GetCoordinates *data, GetCoordinatesReturn *data_ret);
-BootloaderHandleMessageReturn get_status(const GetStatus *data, GetStatusReturn *data_ret);
-BootloaderHandleMessageReturn get_altitude(const GetAltitude *data, GetAltitudeReturn *data_ret);
-BootloaderHandleMessageReturn get_motion(const GetMotion *data, GetMotionReturn *data_ret);
-BootloaderHandleMessageReturn get_date_time(const GetDateTime *data, GetDateTimeReturn *data_ret);
-BootloaderHandleMessageReturn restart(const Restart *data);
-BootloaderHandleMessageReturn set_coordinates_callback_period(const SetCoordinatesCallbackPeriod *data);
-BootloaderHandleMessageReturn get_coordinates_callback_period(const GetCoordinatesCallbackPeriod *data, GetCoordinatesCallbackPeriodReturn *data_ret);
-BootloaderHandleMessageReturn set_status_callback_period(const SetStatusCallbackPeriod *data);
-BootloaderHandleMessageReturn get_status_callback_period(const GetStatusCallbackPeriod *data, GetStatusCallbackPeriodReturn *data_ret);
-BootloaderHandleMessageReturn set_altitude_callback_period(const SetAltitudeCallbackPeriod *data);
-BootloaderHandleMessageReturn get_altitude_callback_period(const GetAltitudeCallbackPeriod *data, GetAltitudeCallbackPeriodReturn *data_ret);
-BootloaderHandleMessageReturn set_motion_callback_period(const SetMotionCallbackPeriod *data);
-BootloaderHandleMessageReturn get_motion_callback_period(const GetMotionCallbackPeriod *data, GetMotionCallbackPeriodReturn *data_ret);
-BootloaderHandleMessageReturn set_date_time_callback_period(const SetDateTimeCallbackPeriod *data);
-BootloaderHandleMessageReturn get_date_time_callback_period(const GetDateTimeCallbackPeriod *data, GetDateTimeCallbackPeriodReturn *data_ret);
+
+BootloaderHandleMessageResponse get_coordinates(const GetCoordinates *data, GetCoordinatesResponse *response);
+BootloaderHandleMessageResponse get_status(const GetStatus *data, GetStatusResponse *response);
+BootloaderHandleMessageResponse get_altitude(const GetAltitude *data, GetAltitudeResponse *response);
+BootloaderHandleMessageResponse get_motion(const GetMotion *data, GetMotionResponse *response);
+BootloaderHandleMessageResponse get_date_time(const GetDateTime *data, GetDateTimeResponse *response);
+BootloaderHandleMessageResponse restart(const Restart *data);
+BootloaderHandleMessageResponse set_coordinates_callback_period(const SetCoordinatesCallbackPeriod *data);
+BootloaderHandleMessageResponse get_coordinates_callback_period(const GetCoordinatesCallbackPeriod *data, GetCoordinatesCallbackPeriodResponse *response);
+BootloaderHandleMessageResponse set_status_callback_period(const SetStatusCallbackPeriod *data);
+BootloaderHandleMessageResponse get_status_callback_period(const GetStatusCallbackPeriod *data, GetStatusCallbackPeriodResponse *response);
+BootloaderHandleMessageResponse set_altitude_callback_period(const SetAltitudeCallbackPeriod *data);
+BootloaderHandleMessageResponse get_altitude_callback_period(const GetAltitudeCallbackPeriod *data, GetAltitudeCallbackPeriodResponse *response);
+BootloaderHandleMessageResponse set_motion_callback_period(const SetMotionCallbackPeriod *data);
+BootloaderHandleMessageResponse get_motion_callback_period(const GetMotionCallbackPeriod *data, GetMotionCallbackPeriodResponse *response);
+BootloaderHandleMessageResponse set_date_time_callback_period(const SetDateTimeCallbackPeriod *data);
+BootloaderHandleMessageResponse get_date_time_callback_period(const GetDateTimeCallbackPeriod *data, GetDateTimeCallbackPeriodResponse *response);
 
 
 #endif
