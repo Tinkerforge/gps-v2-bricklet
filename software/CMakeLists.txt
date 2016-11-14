@@ -1,8 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake_config_custom.txt)
+
 SET(PROJECT_NAME gps-v2-bricklet)
 SET(CHIP_FAMILY XMC1)
-SET(CHIP XMC1100_Q024x0016)
 SET(MCU cortex-m0\ -mthumb)
 PROJECT(${PROJECT_NAME})
 
@@ -116,6 +117,10 @@ ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    COMMAND cp ${PROJECT_SOURCE_DIR}/src/configs/config_custom_bootloader.h ${PROJECT_SOURCE_DIR}/../../brickletboot_xmc/software/src/configs)
 
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
+                   POST_BUILD
+                   COMMAND cp ${PROJECT_SOURCE_DIR}/cmake_config_custom.txt ${PROJECT_SOURCE_DIR}/../../brickletboot_xmc/software/)
+
+ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD 
                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../../brickletboot_xmc/software/build
                    COMMAND make clean && make)
@@ -123,6 +128,10 @@ ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD
                    COMMAND rm ${PROJECT_SOURCE_DIR}/../../brickletboot_xmc/software/src/configs/config_custom_bootloader.h)
+                   
+                   ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
+                   POST_BUILD
+                   COMMAND rm ${PROJECT_SOURCE_DIR}/../../brickletboot_xmc/software/cmake_config_custom.txt)
 
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD
@@ -137,12 +146,20 @@ ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
 
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD
+                   COMMAND cp ${PROJECT_SOURCE_DIR}/cmake_config_custom.txt ${PROJECT_SOURCE_DIR}/../../bootstrapper_xmc/software/)
+
+ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
+                   POST_BUILD
                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bootstrapper_xmc/software/build
                    COMMAND make clean && make)
 
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD
                    COMMAND rm ${PROJECT_SOURCE_DIR}/../../bootstrapper_xmc/software/src/configs/config_custom_bootstrapper.h)
+
+ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
+                   POST_BUILD
+                   COMMAND rm ${PROJECT_SOURCE_DIR}/../../bootstrapper_xmc/software/cmake_config_custom.txt)
 
 ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf
                    POST_BUILD
