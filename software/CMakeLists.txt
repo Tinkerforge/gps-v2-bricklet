@@ -60,7 +60,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/src/bricklib2/cmake/configs/config_define_ex
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/bricklib2/cmake/configs/config_comcu_add_aeabi_libraries.txt)
 
 # define standard compile and linker flags
-SET(LINKER_SCRIPT_NAME xmc1100_firmware_with_brickletboot.ld)
+SET(LINKER_SCRIPT_NAME xmc1_firmware_with_brickletboot.ld)
 SET(FLASH_ORIGIN 0x10003000) # Move flash origin above the bootloader
 MATH(EXPR FLASH_LENGTH "${CHIP_FLASH_SIZE} - 8192") # Remove bootloader size from flash size
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/bricklib2/cmake/configs/config_comcu_add_standard_flags.txt)
