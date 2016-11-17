@@ -84,46 +84,46 @@ void firefly_x1_init(FireFlyX1 *firefly_x1) {
 
 	// MISO pin configuration
 	const XMC_GPIO_CONFIG_t mosi_pin_config = {
-	  .mode             = FIREFLY_X1_MOSI_PIN_AF,
-	  .output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH
+		.mode             = FIREFLY_X1_MOSI_PIN_AF,
+		.output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH
 	};
 
 	// MOSI pin configuration
 	const XMC_GPIO_CONFIG_t miso_pin_config = {
-	  .mode             = XMC_GPIO_MODE_INPUT_TRISTATE,
-	  .input_hysteresis = XMC_GPIO_INPUT_HYSTERESIS_STANDARD
+		.mode             = XMC_GPIO_MODE_INPUT_TRISTATE,
+		.input_hysteresis = XMC_GPIO_INPUT_HYSTERESIS_STANDARD
 	};
 
 	// SCLK pin configuration
 	const XMC_GPIO_CONFIG_t sclk_pin_config = {
-	  .mode             = FIREFLY_X1_SCLK_PIN_AF,
-	  .output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH
+		.mode             = FIREFLY_X1_SCLK_PIN_AF,
+		.output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH
 	};
 
 	// SELECT pin configuration
 	const XMC_GPIO_CONFIG_t select_pin_config = {
-	  .mode             = FIREFLY_X1_SELECT_PIN_AF,
-	  .output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH
+		.mode             = FIREFLY_X1_SELECT_PIN_AF,
+		.output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH
 	};
 
 	// Interrupt pin configuration
 	const XMC_GPIO_CONFIG_t interrupt_pin_config = {
-	  .mode             = XMC_GPIO_MODE_INPUT_TRISTATE,
-	  .output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH,
-	  .input_hysteresis = XMC_GPIO_INPUT_HYSTERESIS_STANDARD
+		.mode             = XMC_GPIO_MODE_INPUT_TRISTATE,
+		.output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH,
+		.input_hysteresis = XMC_GPIO_INPUT_HYSTERESIS_STANDARD
 	};
 
 	// Reset pin configuration
 	const XMC_GPIO_CONFIG_t nreset_pin_config = {
-	  .mode             = XMC_GPIO_MODE_OUTPUT_PUSH_PULL,
-	  .output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH, // not reset
+		.mode             = XMC_GPIO_MODE_OUTPUT_PUSH_PULL,
+		.output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH, // not reset
 	};
 
 	// PPS pin configuration
 	const XMC_GPIO_CONFIG_t pps_pin_config = {
-	  .mode             = XMC_GPIO_MODE_INPUT_TRISTATE,
-	  .output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH,
-	  .input_hysteresis = XMC_GPIO_INPUT_HYSTERESIS_STANDARD
+		.mode             = XMC_GPIO_MODE_INPUT_TRISTATE,
+		.output_level     = XMC_GPIO_OUTPUT_LEVEL_HIGH,
+		.input_hysteresis = XMC_GPIO_INPUT_HYSTERESIS_STANDARD
 	};
 
 	// Configure GPIO pins
