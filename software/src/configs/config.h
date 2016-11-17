@@ -33,6 +33,8 @@
 #define FIRMWARE_VERSION_MINOR 0
 #define FIRMWARE_VERSION_REVISION 0
 
+#define SYSTEM_TIMER_FREQUENCY 1000 // Use 1 kHz system timer
+
 #include "config_custom_bootloader.h"
 
 #endif

@@ -28,7 +28,6 @@
 #include "configs/config.h"
 
 #include "bricklib2/bootloader/bootloader.h"
-#include "bricklib2/hal/system_timer/system_timer.h"
 #include "bricklib2/hal/uartbb/uartbb.h"
 #include "communication.h"
 #include "firefly_x1.h"
@@ -38,7 +37,6 @@
 FireFlyX1 firefly_x1;
 
 int main(void) {
-	system_timer_init(SystemCoreClock, SYSTEM_TIMER_FREQUENCY);
 	uartbb_init();
 	uartbb_puts("Start GPS Bricklet 2.0\n\r");
 
