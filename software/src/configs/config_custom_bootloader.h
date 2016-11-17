@@ -1,7 +1,7 @@
 /* gps-v2-bricklet
  * Copyright (C) 2016 Olaf Lüke <olaf@tinkerforge.com>
  *
- * config.c: All configurations for GPS Bricklet 2.0
+ * config.c: Bootloader configurations for GPS Bricklet 2.0
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
