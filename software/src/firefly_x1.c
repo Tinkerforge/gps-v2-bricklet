@@ -236,12 +236,31 @@ void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
 			struct minmea_sentence_rmc rmc;
 			minmea_parse_rmc(&rmc, sentence);
 
+			if(firefly_x1->mixed.time.hours        != rmc.time.hours ||
+			   firefly_x1->mixed.time.minutes      != rmc.time.minutes ||
+			   firefly_x1->mixed.time.seconds      != rmc.time.seconds ||
+			   firefly_x1->mixed.time.microseconds != rmc.time.microseconds ||
+			   firefly_x1->mixed.date.year         != rmc.date.year ||
+			   firefly_x1->mixed.date.month        != rmc.date.month ||
+			   firefly_x1->mixed.date.day          != rmc.date.day) {
+				firefly_x1->new_date_time = true;
+			}
+			if(firefly_x1->mixed.latitude.value    != rmc.latitude.value ||
+			   firefly_x1->mixed.longitude.value   != rmc.longitude.value) {
+				firefly_x1->new_coordinates = true;
+			}
+			if(firefly_x1->mixed.speed.value       != rmc.speed.value ||
+			   firefly_x1->mixed.course.value      != rmc.course.value) {
+				firefly_x1->new_motion = true;
+			}
+
 			firefly_x1->mixed.time      = rmc.time;
 			firefly_x1->mixed.valid     = rmc.valid;
 			firefly_x1->mixed.latitude  = rmc.latitude;
 			firefly_x1->mixed.longitude = rmc.longitude;
 			firefly_x1->mixed.speed     = rmc.speed;
 			firefly_x1->mixed.course    = rmc.course;
+			firefly_x1->mixed.date      = rmc.date;
 			firefly_x1->mixed.variation = rmc.variation;
 
 			break;
@@ -250,6 +269,25 @@ void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
 		case MINMEA_SENTENCE_GGA: {
 			struct minmea_sentence_gga gga;
 			minmea_parse_gga(&gga, sentence);
+
+			if(firefly_x1->mixed.time.hours         != gga.time.hours ||
+			   firefly_x1->mixed.time.minutes       != gga.time.minutes ||
+			   firefly_x1->mixed.time.seconds       != gga.time.seconds ||
+			   firefly_x1->mixed.time.microseconds  != gga.time.microseconds) {
+				firefly_x1->new_date_time = true;
+			}
+			if(firefly_x1->mixed.latitude.value     != gga.latitude.value ||
+			   firefly_x1->mixed.longitude.value    != gga.longitude.value) {
+				firefly_x1->new_coordinates = true;
+			}
+			if(firefly_x1->mixed.fix_quality        != gga.fix_quality ||
+			   firefly_x1->mixed.satellites_tracked != gga.satellites_tracked) {
+				firefly_x1->new_status = true;
+			}
+			if(firefly_x1->mixed.altitude.value     != gga.altitude.value ||
+			   firefly_x1->mixed.height.value       != gga.height.value) {
+				firefly_x1->new_altitude = true;
+			}
 
 			firefly_x1->mixed.time               = gga.time;
 			firefly_x1->mixed.latitude           = gga.latitude;
