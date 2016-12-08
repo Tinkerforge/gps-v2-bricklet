@@ -351,6 +351,26 @@ void firefly_x1_handle_state_wait_for_interrupt(FireFlyX1 *firefly_x1) {
 	if(!XMC_GPIO_GetInput(FIREFLY_X1_INTERRUPT_PIN)) {
 		memset(firefly_x1->buffer_send, 0xAA, FIREFLY_X1_SEND_BUFFER_SIZE);
 
+		if(firefly_x1->restart != 0) {
+			memset(&firefly_x1->mixed, 0, sizeof(FireFlyX1DataMixed));
+			memset(&firefly_x1->gps, 0, sizeof(FireFlyX1DataSingle));
+			memset(&firefly_x1->glonass, 0, sizeof(FireFlyX1DataSingle));
+		}
+
+		if(firefly_x1->restart & FIREFLY_X1_RESTART_HOT) {
+			strcpy(firefly_x1->buffer_send, "$PMTK101*32\r\n");
+			firefly_x1->restart &= ~FIREFLY_X1_RESTART_HOT;
+		} else if(firefly_x1->restart & FIREFLY_X1_RESTART_WARM) {
+			strcpy(firefly_x1->buffer_send, "$PMTK102*31\r\n");
+			firefly_x1->restart &= ~FIREFLY_X1_RESTART_WARM;
+		} else if(firefly_x1->restart & FIREFLY_X1_RESTART_COLD) {
+			strcpy(firefly_x1->buffer_send, "$PMTK103*30\r\n");
+			firefly_x1->restart &= ~FIREFLY_X1_RESTART_COLD;
+		} else if(firefly_x1->restart & FIREFLY_X1_RESTART_FACTORY) {
+			strcpy(firefly_x1->buffer_send, "$PMTK104*37\r\n");
+			firefly_x1->restart &= ~FIREFLY_X1_RESTART_FACTORY;
+		}
+
 		// Start transfer
 		firefly_x1->buffer_recv_counter = 0;
 		firefly_x1->buffer_send_index = 0;
