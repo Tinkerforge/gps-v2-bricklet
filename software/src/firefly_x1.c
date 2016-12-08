@@ -316,6 +316,13 @@ void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
 
 			for(uint8_t i = 0; i < 4; i++) {
 				uint8_t pnr = gsv.sats[i].nr;
+				if(pnr == 96) { // pnr 96 seems to always produce garbage values, we ignore it
+					continue;
+				}
+
+				if(talker == TALKER_GLONASS) {
+					pnr -= 64; // GLONASS IDs go from 65 to 96
+				}
 				if(pnr < 1 || pnr > 32) { // pnr should always be between 1 and 32
 					continue;
 				}
