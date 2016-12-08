@@ -70,6 +70,13 @@ typedef struct {
 } FireFlyX1DataMixed;
 
 typedef enum {
+	FIREFLY_X1_RESTART_HOT     = 1,
+	FIREFLY_X1_RESTART_WARM    = 2,
+	FIREFLY_X1_RESTART_COLD    = 4,
+	FIREFLY_X1_RESTART_FACTORY = 8,
+} FireFlyX1Restart;
+
+typedef enum {
 	FIREFLY_X1_STATE_WAIT_FOR_INTERRUPT,
 	FIREFLY_X1_STATE_RECEIVE_IN_PROGRESS,
 	FIREFLY_X1_STATE_WAIT_8MS,
@@ -83,6 +90,14 @@ typedef struct {
 	uint16_t buffer_send_index;
 	FireFlyX1State state;
 	uint32_t wait_8ms_start_time;
+
+	uint8_t restart;
+
+	bool new_coordinates;
+	bool new_status;
+	bool new_altitude;
+	bool new_motion;
+	bool new_date_time;
 
 	FireFlyX1DataMixed mixed;
 	FireFlyX1DataSingle gps;
