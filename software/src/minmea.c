@@ -14,8 +14,6 @@
 #include <stdarg.h>
 #include <time.h>
 
-#include "bricklib2/hal/uartbb/uartbb.h"
-
 #define boolstr(s) ((s) ? "true" : "false")
 
 static int hex2int(char c)
@@ -50,13 +48,11 @@ bool minmea_check(const char *sentence, bool strict)
 
     // Sequence length is limited.
     if (strlen(sentence) > MINMEA_MAX_LENGTH + 3) {
-    	uartbb_puts("false 1\n\r");
         return false;
     }
 
     // A valid sentence starts with "$".
     if (*sentence++ != '$') {
-    	uartbb_puts("false 2\n\r");
         return false;
     }
 
@@ -81,13 +77,11 @@ bool minmea_check(const char *sentence, bool strict)
             return false;
     } else if (strict) {
         // Discard non-checksummed frames in strict mode.
-    	uartbb_puts("false 3\n\r");
         return false;
     }
 
     // The only stuff allowed at this point is a newline.
     if (*sentence && strcmp(sentence, "\n") && strcmp(sentence, "\r\n")) {
-    	uartbb_puts("false 4: "); uartbb_puti(*(sentence-1)); uartbb_puts(", "); uartbb_puti(*sentence); uartbb_puts(", "); uartbb_puti(*(sentence+1)); uartbb_putnl();
         return false;
     }
 
@@ -252,17 +246,14 @@ bool minmea_scan(const char *sentence, const char *format, ...)
                 // This field is always mandatory.
                 if (!field) {
 
-                	uartbb_puts("error 1\n\r");
                     goto parse_error;
                 }
 
                 if (field[0] != '$') {
-                	uartbb_puts("error 2\n\r");
                     goto parse_error;
                 }
                 for (int f=0; f<5; f++)
                     if (!minmea_isfield(field[1+f])) {
-                    	uartbb_puts("error 3\n\r");
                         goto parse_error;
                     }
 
@@ -368,13 +359,11 @@ bool minmea_talker_id(char talker[3], const char *sentence)
 enum minmea_sentence_id minmea_sentence_id(const char *sentence, bool strict)
 {
     if (!minmea_check(sentence, strict)) {
-    	uartbb_puts("invalid 1\n\r");
         return MINMEA_INVALID;
     }
 
     char type[6];
     if (!minmea_scan(sentence, "t", type)) {
-    	uartbb_puts("invalid 2\n\r");
         return MINMEA_INVALID;
     }
 
