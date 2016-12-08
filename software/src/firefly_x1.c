@@ -27,7 +27,6 @@
 #include "bricklib2/utility/ringbuffer.h"
 #include "bricklib2/protocols/tfp/tfp.h"
 #include "bricklib2/hal/system_timer/system_timer.h"
-#include "bricklib2/hal/uartbb/uartbb.h"
 #include "bricklib2/bootloader/bootloader.h"
 #include "configs/config_firefly_x1.h"
 
@@ -38,37 +37,30 @@ extern FireFlyX1 firefly_x1;
 #define firefly_x1_rx_irq_handler IRQ_Hdlr_11
 #define firefly_x1_tx_irq_handler IRQ_Hdlr_12
 
-void /*__attribute__((optimize("-O3")))*/ firefly_x1_rx_irq_handler(void) {
-//	XMC_GPIO_SetOutputHigh(UARTBB_TX_PIN);
+void __attribute__((optimize("-O3"))) firefly_x1_rx_irq_handler(void) {
 	while(!XMC_USIC_CH_RXFIFO_IsEmpty(FIREFLY_X1_USIC)) {
 		firefly_x1.ringbuffer_recv.buffer[firefly_x1.ringbuffer_recv.end] = FIREFLY_X1_USIC->OUTR;
 		firefly_x1.ringbuffer_recv.end = (firefly_x1.ringbuffer_recv.end + 1) & FIREFLY_X1_RECV_BUFFER_MASK;
 
 		firefly_x1.buffer_recv_counter++;
 	}
-
-//	XMC_GPIO_SetOutputLow(UARTBB_TX_PIN);
 }
 
-void /*__attribute__((optimize("-O3")))*/ firefly_x1_tx_irq_handler(void) {
-//	XMC_GPIO_SetOutputHigh(UARTBB_TX_PIN);
+void __attribute__((optimize("-O3"))) firefly_x1_tx_irq_handler(void) {
 	while(!XMC_USIC_CH_TXFIFO_IsFull(FIREFLY_X1_USIC)) {
 		FIREFLY_X1_USIC->IN[0] = firefly_x1.buffer_send[firefly_x1.buffer_send_index];
 		firefly_x1.buffer_send_index++;
 		if(firefly_x1.buffer_send_index == FIREFLY_X1_SEND_BUFFER_SIZE) {
 			XMC_USIC_CH_TXFIFO_DisableEvent(FIREFLY_X1_USIC, XMC_USIC_CH_TXFIFO_EVENT_CONF_STANDARD);
-//			XMC_GPIO_SetOutputLow(UARTBB_TX_PIN);
 			return;
 		}
 	}
-//	XMC_GPIO_SetOutputLow(UARTBB_TX_PIN);
 }
 
 
 void firefly_x1_init(FireFlyX1 *firefly_x1) {
-	// Initialize struct
-	memset(firefly_x1->buffer_recv, 0, FIREFLY_X1_RECV_BUFFER_SIZE);
-	memset(firefly_x1->buffer_send, 0, FIREFLY_X1_SEND_BUFFER_SIZE);
+	// Initialize the whole struct as zero
+	memset(firefly_x1, 0, sizeof(FireFlyX1));
 	firefly_x1->buffer_send_index = 0;
 	firefly_x1->state = FIREFLY_X1_STATE_WAIT_FOR_INTERRUPT;
 	firefly_x1->wait_8ms_start_time = 0;
@@ -200,11 +192,9 @@ void firefly_x1_init(FireFlyX1 *firefly_x1) {
 
 void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
 	enum minmea_sentence_id id = minmea_sentence_id(sentence, false);
-	uartbb_puts("sentence id: "); uartbb_puti(id); uartbb_putnl();
 
 	char talker_id[3];
 	minmea_talker_id(talker_id, sentence);
-	uartbb_puts("talker id: "); uartbb_puts(talker_id); uartbb_putnl();
 	FireFlyX1Talker talker;
 
 	if(talker_id[0] == 'G' && talker_id[1] == 'P') {
@@ -221,14 +211,10 @@ void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
 
 	switch(id) {
 		case MINMEA_INVALID: {
-			uartbb_puts("Invalid sentence\n\r");
-			uartbb_puts(sentence);
 			break;
 		}
 
 		case MINMEA_UNKNOWN: {
-			uartbb_puts("Unknown sentence\n\r");
-			uartbb_puts(sentence);
 			break;
 		}
 
@@ -328,13 +314,11 @@ void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
 		}
 
 		case MINMEA_SENTENCE_GLL: {
-			uartbb_puts("Got GLL sentence!\n\r");
 			// Not supported by Firefly X1
 			break;
 		}
 
 		case MINMEA_SENTENCE_GST: {
-			uartbb_puts("Got GST sentence!\n\r");
 			// Not supported Firefly X1
 			break;
 		}
@@ -387,8 +371,6 @@ void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
 			break;
 		}
 	}
-
-	uartbb_putnl();
 }
 
 void firefly_x1_handle_state_wait_for_interrupt(FireFlyX1 *firefly_x1) {
@@ -443,37 +425,38 @@ void firefly_x1_handle_state_wait_8ms(FireFlyX1 *firefly_x1) {
 	}
 }
 
+
 void firefly_x1_handle_ringbuffer(FireFlyX1 *firefly_x1) {
 	static char sentence[FIREFLY_X1_MAX_SENTENCE_LENGTH+1] = {0};
 	static int16_t index = 0;
 
-	for(;index < FIREFLY_X1_MAX_SENTENCE_LENGTH; index++) {
-		// TODO: Interrupt off
+	while(index < FIREFLY_X1_MAX_SENTENCE_LENGTH) {
+		// Turn RX interrupt off during ringbuffer_get
+		NVIC_DisableIRQ((IRQn_Type)FIREFLY_X1_IRQ_RX);
+		__DSB();
+		__ISB();
 		if(!ringbuffer_get(&firefly_x1->ringbuffer_recv, (uint8_t*)&sentence[index])) {
-			// TODO: Interrupt on
-			// Ringbuffer is empty
+			NVIC_EnableIRQ((IRQn_Type)FIREFLY_X1_IRQ_RX);
 			break;
 		}
-		// TODO: Interrupt on
+		NVIC_EnableIRQ((IRQn_Type)FIREFLY_X1_IRQ_RX);
 
 		if(sentence[index] == '\n') {
-			if(index == 0) {
-				// If the first element of a sentence in "\n" it is a placeholder byte
-				// and we can start again from the beginning until we get the first
-				// real character of a sentence
-				index = -1;
-				continue;
-			}
+			continue;
+		}
+		if(sentence[index] == '\r') {
+			sentence[index] = '\0';
 
 			firefly_x1_handle_sentence(firefly_x1, sentence);
-//			uartbb_puts(sentence);
 			memset(sentence, 0 , index+1);
+
 			index = 0;
 
 			// We return after each sentence, so we can return to bootloader
 			// between sentences
 			break;
 		}
+		index++;
 	}
 
 	if(index == FIREFLY_X1_MAX_SENTENCE_LENGTH) {
