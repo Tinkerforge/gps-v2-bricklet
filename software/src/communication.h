@@ -293,14 +293,13 @@ bool handle_motion_callback(void);
 bool handle_date_time_callback(void);
 
 #define COMMUNICATION_CALLBACK_TICK_WAIT_MS 1
-#define COMMUNICATION_CALLBACK_HANDLER_NUM 6
+#define COMMUNICATION_CALLBACK_HANDLER_NUM 5
 #define COMMUNICATION_CALLBACK_LIST_INIT \
-	{NULL, NULL, handle_pulse_per_second_callback}, \
-	{NULL, NULL, handle_coordinates_callback}, \
-	{NULL, NULL, handle_status_callback}, \
-	{NULL, NULL, handle_altitude_callback}, \
-	{NULL, NULL, handle_motion_callback}, \
-	{NULL, NULL, handle_date_time_callback}, \
+	handle_coordinates_callback, \
+	handle_status_callback, \
+	handle_altitude_callback, \
+	handle_motion_callback, \
+	handle_date_time_callback, \
 
 
 #endif

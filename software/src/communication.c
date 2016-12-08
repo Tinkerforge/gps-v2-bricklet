@@ -416,12 +416,7 @@ bool handle_date_time_callback(void) {
 }
 
 void communication_tick(void) {
-/*	handle_pulse_per_second_callback();
-	handle_coordinates_callback();
-	handle_status_callback();
-	handle_motion_callback();
-	handle_altitude_callback();
-	handle_date_time_callback();*/
+	handle_pulse_per_second_callback();
 	communication_callback_tick();
 }
 
