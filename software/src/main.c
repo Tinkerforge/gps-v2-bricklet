@@ -29,6 +29,7 @@
 
 #include "bricklib2/bootloader/bootloader.h"
 #include "bricklib2/hal/uartbb/uartbb.h"
+#include "bricklib2/utility/communication_callback.h"
 #include "communication.h"
 #include "firefly_x1.h"
 
@@ -40,11 +41,13 @@ int main(void) {
 	uartbb_init();
 	uartbb_puts("Start GPS Bricklet 2.0\n\r");
 
+	communication_callback_init();
 	firefly_x1_init(&firefly_x1);
 
 	while(true) {
 		bootloader_tick();
 		firefly_x1_tick(&firefly_x1);
+		communication_tick();
 	}
 
 }
