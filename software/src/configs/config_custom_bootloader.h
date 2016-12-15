@@ -31,7 +31,7 @@
 #define BOOTLOADER_HW_VERSION_MINOR    0
 #define BOOTLOADER_HW_VERSION_REVISION 0
 
-#define BOOTLOADER_STATUS_LED_PIN      P2_1
+#define BOOTLOADER_STATUS_LED_PIN      P2_1  // Change to P1_0 in release version
 #define BOOTLOADER_BOOT_PAD_PIN        P0_12
 
 #define BOOTLOADER_FLASH_SIZE          (32*1024)
