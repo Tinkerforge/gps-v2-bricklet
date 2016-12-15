@@ -25,6 +25,7 @@
 #include "xmc_gpio.h"
 
 #include "bricklib2/utility/ringbuffer.h"
+#include "bricklib2/utility/led_flicker.h"
 #include "bricklib2/protocols/tfp/tfp.h"
 #include "bricklib2/hal/system_timer/system_timer.h"
 #include "bricklib2/bootloader/bootloader.h"
@@ -64,6 +65,7 @@ void firefly_x1_init(FireFlyX1 *firefly_x1) {
 	firefly_x1->buffer_send_index = 0;
 	firefly_x1->state = FIREFLY_X1_STATE_WAIT_FOR_INTERRUPT;
 	firefly_x1->wait_8ms_start_time = 0;
+	firefly_x1->fix_led_state.config = LED_FLICKER_CONFIG_EXTERNAL;
 	ringbuffer_init(&firefly_x1->ringbuffer_recv, FIREFLY_X1_RECV_BUFFER_SIZE, (uint8_t*)firefly_x1->buffer_recv);
 
 	// USIC channel configuration
@@ -118,10 +120,18 @@ void firefly_x1_init(FireFlyX1 *firefly_x1) {
 		.input_hysteresis = XMC_GPIO_INPUT_HYSTERESIS_STANDARD
 	};
 
+	// LED pin configuration
+	XMC_GPIO_CONFIG_t led_pin_config = {
+		.mode             = XMC_GPIO_MODE_OUTPUT_PUSH_PULL,
+		.output_level     = XMC_GPIO_OUTPUT_LEVEL_LOW
+	};
+
+
 	// Configure GPIO pins
 	XMC_GPIO_Init(FIREFLY_X1_INTERRUPT_PIN, &interrupt_pin_config);
 	XMC_GPIO_Init(FIREFLY_X1_NRESET_PIN, &nreset_pin_config);
 	XMC_GPIO_Init(FIREFLY_X1_PPS_PIN, &pps_pin_config);
+	XMC_GPIO_Init(FIREFLY_X1_FIX_LED_PIN, &led_pin_config);
 
 	// Configure MISO pin
 	XMC_GPIO_Init(FIREFLY_X1_MOSI_PIN, &miso_pin_config);
@@ -466,6 +476,23 @@ void firefly_x1_handle_ringbuffer(FireFlyX1 *firefly_x1) {
 	}
 }
 
+void firefly_x1_handle_fix_led(FireFlyX1 *firefly_x1) {
+	static uint32_t last_toggle = 0;
+
+	// Handle standard configurations (on, off, heartbeat)
+	led_flicker_tick(&firefly_x1->fix_led_state, system_timer_get_ms(), FIREFLY_X1_FIX_LED_PIN);
+
+	// Handle fix configuration
+	if(firefly_x1->fix_led_state.config == LED_FLICKER_CONFIG_EXTERNAL) {
+		if(firefly_x1->mixed.valid) {
+			XMC_GPIO_SetOutputLow(FIREFLY_X1_FIX_LED_PIN);
+		} else if(system_timer_is_time_elapsed_ms(last_toggle, FIREFLY_X1_FIX_BLINK_TIME)) {
+			last_toggle = system_timer_get_ms();
+			XMC_GPIO_ToggleOutput(FIREFLY_X1_FIX_LED_PIN);
+		}
+	}
+}
+
 void firefly_x1_tick(FireFlyX1 *firefly_x1) {
 	switch(firefly_x1->state) {
 		case FIREFLY_X1_STATE_WAIT_FOR_INTERRUPT:   firefly_x1_handle_state_wait_for_interrupt(firefly_x1);  break;
@@ -474,4 +501,5 @@ void firefly_x1_tick(FireFlyX1 *firefly_x1) {
 	}
 
 	firefly_x1_handle_ringbuffer(firefly_x1);
+	firefly_x1_handle_fix_led(firefly_x1);
 }

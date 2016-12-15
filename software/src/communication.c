@@ -47,6 +47,8 @@ BootloaderHandleMessageResponse handle_message(const void *message, void *respon
 		case FID_RESTART: return restart(message);
 		case FID_GET_SATELLITE_SYSTEM_STATUS: return get_satellite_system_status(message, response);
 		case FID_GET_SATELLITE_STATUS: return get_satellite_status(message, response);
+		case FID_SET_FIX_LED_CONFIG: return set_fix_led_config(message);
+		case FID_GET_FIX_LED_CONFIG: return get_fix_led_config(message, response);
 		case FID_SET_COORDINATES_CALLBACK_PERIOD: return set_coordinates_callback_period(message);
 		case FID_GET_COORDINATES_CALLBACK_PERIOD: return get_coordinates_callback_period(message, response);
 		case FID_SET_STATUS_CALLBACK_PERIOD: return set_status_callback_period(message);
@@ -176,6 +178,40 @@ BootloaderHandleMessageResponse get_satellite_status(const GetSatelliteStatus *d
 	response->azimuth   = single->sat_info[data->satellite_number-1].azimuth;
 	response->elevation = single->sat_info[data->satellite_number-1].elevation;
 	response->snr       = single->sat_info[data->satellite_number-1].snr;
+
+	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
+}
+
+BootloaderHandleMessageResponse set_fix_led_config(const SetFixLEDConfig *data) {
+	if(data->config > GPS_V2_FIX_LED_CONFIG_SHOW_HEARTBEAT) {
+		return HANDLE_MESSAGE_RESPONSE_INVALID_PARAMETER;
+	}
+
+	// The error config and flicker config are not the same, we save the "show error" option as "external"
+	if(data->config == GPS_V2_FIX_LED_CONFIG_SHOW_FIX) {
+		firefly_x1.fix_led_state.config = LED_FLICKER_CONFIG_EXTERNAL;
+	} else {
+		firefly_x1.fix_led_state.config = data->config;
+	}
+
+	// Set LED according to value
+	if(firefly_x1.fix_led_state.config == GPS_V2_FIX_LED_CONFIG_OFF || firefly_x1.fix_led_state.config == LED_FLICKER_CONFIG_EXTERNAL) {
+		XMC_GPIO_SetOutputHigh(FIREFLY_X1_FIX_LED_PIN);
+	} else {
+		XMC_GPIO_SetOutputLow(FIREFLY_X1_FIX_LED_PIN);
+	}
+
+	return HANDLE_MESSAGE_RESPONSE_EMPTY;
+}
+
+BootloaderHandleMessageResponse get_fix_led_config(const GetFixLEDConfig *data, GetFixLEDConfigResponse *response) {
+	response->header.length = sizeof(GetFixLEDConfigResponse);
+
+	if(firefly_x1.fix_led_state.config == LED_FLICKER_CONFIG_EXTERNAL) {
+		response->config = GPS_V2_FIX_LED_CONFIG_SHOW_FIX;
+	} else {
+		response->config = firefly_x1.fix_led_state.config;
+	}
 
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
 }

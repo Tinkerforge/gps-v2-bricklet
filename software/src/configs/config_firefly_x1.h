@@ -24,6 +24,8 @@
 
 #include "xmc_gpio.h"
 
+#define FIREFLY_X1_FIX_LED_PIN          P2_2
+
 #define FIREFLY_X1_USIC_CHANNEL         USIC0_CH1
 #define FIREFLY_X1_USIC                 XMC_SPI0_CH1
 

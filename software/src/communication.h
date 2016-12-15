@@ -46,6 +46,11 @@ void communication_init(void);
 #define GPS_V2_FIX_2D_FIX 2
 #define GPS_V2_FIX_3D_FIX 3
 
+#define GPS_V2_FIX_LED_CONFIG_OFF 0
+#define GPS_V2_FIX_LED_CONFIG_ON 1
+#define GPS_V2_FIX_LED_CONFIG_SHOW_FIX 2
+#define GPS_V2_FIX_LED_CONFIG_SHOW_HEARTBEAT 3
+
 // Function and callback IDs and structs
 #define FID_GET_COORDINATES 1
 #define FID_GET_STATUS 2
@@ -55,23 +60,25 @@ void communication_init(void);
 #define FID_RESTART 6
 #define FID_GET_SATELLITE_SYSTEM_STATUS 7
 #define FID_GET_SATELLITE_STATUS 8
-#define FID_SET_COORDINATES_CALLBACK_PERIOD 9
-#define FID_GET_COORDINATES_CALLBACK_PERIOD 10
-#define FID_SET_STATUS_CALLBACK_PERIOD 11
-#define FID_GET_STATUS_CALLBACK_PERIOD 12
-#define FID_SET_ALTITUDE_CALLBACK_PERIOD 13
-#define FID_GET_ALTITUDE_CALLBACK_PERIOD 14
-#define FID_SET_MOTION_CALLBACK_PERIOD 15
-#define FID_GET_MOTION_CALLBACK_PERIOD 16
-#define FID_SET_DATE_TIME_CALLBACK_PERIOD 17
-#define FID_GET_DATE_TIME_CALLBACK_PERIOD 18
+#define FID_SET_FIX_LED_CONFIG 9
+#define FID_GET_FIX_LED_CONFIG 10
+#define FID_SET_COORDINATES_CALLBACK_PERIOD 11
+#define FID_GET_COORDINATES_CALLBACK_PERIOD 12
+#define FID_SET_STATUS_CALLBACK_PERIOD 13
+#define FID_GET_STATUS_CALLBACK_PERIOD 14
+#define FID_SET_ALTITUDE_CALLBACK_PERIOD 15
+#define FID_GET_ALTITUDE_CALLBACK_PERIOD 16
+#define FID_SET_MOTION_CALLBACK_PERIOD 17
+#define FID_GET_MOTION_CALLBACK_PERIOD 18
+#define FID_SET_DATE_TIME_CALLBACK_PERIOD 19
+#define FID_GET_DATE_TIME_CALLBACK_PERIOD 20
 
-#define FID_CALLBACK_PULSE_PER_SECOND 19
-#define FID_CALLBACK_COORDINATES 20
-#define FID_CALLBACK_STATUS 21
-#define FID_CALLBACK_ALTITUDE 22
-#define FID_CALLBACK_MOTION 23
-#define FID_CALLBACK_DATE_TIME 24
+#define FID_CALLBACK_PULSE_PER_SECOND 21
+#define FID_CALLBACK_COORDINATES 22
+#define FID_CALLBACK_STATUS 23
+#define FID_CALLBACK_ALTITUDE 24
+#define FID_CALLBACK_MOTION 25
+#define FID_CALLBACK_DATE_TIME 26
 
 typedef struct {
 	TFPMessageHeader header;
@@ -156,6 +163,20 @@ typedef struct {
 	int16_t azimuth;
 	int16_t snr;
 } __attribute__((__packed__)) GetSatelliteStatusResponse;
+
+typedef struct {
+	TFPMessageHeader header;
+	uint8_t config;
+} __attribute__((__packed__)) SetFixLEDConfig;
+
+typedef struct {
+	TFPMessageHeader header;
+} __attribute__((__packed__)) GetFixLEDConfig;
+
+typedef struct {
+	TFPMessageHeader header;
+	uint8_t config;
+} __attribute__((__packed__)) GetFixLEDConfigResponse;
 
 typedef struct {
 	TFPMessageHeader header;
@@ -273,6 +294,8 @@ BootloaderHandleMessageResponse get_date_time(const GetDateTime *data, GetDateTi
 BootloaderHandleMessageResponse restart(const Restart *data);
 BootloaderHandleMessageResponse get_satellite_system_status(const GetSatelliteSystemStatus *data, GetSatelliteSystemStatusResponse *response);
 BootloaderHandleMessageResponse get_satellite_status(const GetSatelliteStatus *data, GetSatelliteStatusResponse *response);
+BootloaderHandleMessageResponse set_fix_led_config(const SetFixLEDConfig *data);
+BootloaderHandleMessageResponse get_fix_led_config(const GetFixLEDConfig *data, GetFixLEDConfigResponse *response);
 BootloaderHandleMessageResponse set_coordinates_callback_period(const SetCoordinatesCallbackPeriod *data);
 BootloaderHandleMessageResponse get_coordinates_callback_period(const GetCoordinatesCallbackPeriod *data, GetCoordinatesCallbackPeriodResponse *response);
 BootloaderHandleMessageResponse set_status_callback_period(const SetStatusCallbackPeriod *data);
