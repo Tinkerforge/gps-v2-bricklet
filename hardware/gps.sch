@@ -112,7 +112,7 @@ F 3 "" H 9200 2550 60  0001 C CNN
 $EndComp
 Text Notes 600  7650 0    40   ~ 0
 Copyright Tinkerforge GmbH 2016.\nThis documentation describes Open Hardware and is licensed under the\nCERN OHL v. 1.1.\nYou may redistribute and modify this documentation under the terms of the\nCERN OHL v.1.1. (http://ohwr.org/cernohl). This documentation is distributed\nWITHOUT ANY EXPRESS OR IMPLIED WARRANTY, INCLUDING OF\nMERCHANTABILITY, SATISFACTORY QUALITY AND FITNESS FOR A\nPARTICULAR PURPOSE. Please see the CERN OHL v.1.1 for applicable\nconditions\n
-NoConn ~ 1550 1600
+NoConn ~ 1550 1900
 $Comp
 L DRILL U103
 U 1 1 4C6050A5
@@ -160,23 +160,23 @@ $EndComp
 $Comp
 L GND #PWR05
 U 1 1 4C5FCF5E
-P 1800 1700
-F 0 "#PWR05" H 1800 1700 30  0001 C CNN
-F 1 "GND" H 1800 1630 30  0001 C CNN
-F 2 "" H 1800 1700 60  0001 C CNN
-F 3 "" H 1800 1700 60  0001 C CNN
-	1    1800 1700
+P 1800 2000
+F 0 "#PWR05" H 1800 2000 30  0001 C CNN
+F 1 "GND" H 1800 1930 30  0001 C CNN
+F 2 "" H 1800 2000 60  0001 C CNN
+F 3 "" H 1800 2000 60  0001 C CNN
+	1    1800 2000
 	0    -1   -1   0   
 $EndComp
 $Comp
-L CON-SENSOR P101
+L CON-SENSOR2 P101
 U 1 1 4C5FCF27
-P 1100 2050
-F 0 "P101" H 850 2600 60  0000 C CNN
-F 1 "CON-SENSOR" V 1250 2050 60  0000 C CNN
-F 2 "kicad-libraries:CON-SENSOR" H 1100 2050 60  0001 C CNN
-F 3 "" H 1100 2050 60  0001 C CNN
-	1    1100 2050
+P 1200 2200
+F 0 "P101" H 1100 2600 60  0000 C CNN
+F 1 "CON-SENSOR" V 1350 2200 60  0000 C CNN
+F 2 "kicad-libraries:CON-SENSOR2" H 1200 2200 60  0001 C CNN
+F 3 "" H 1200 2200 60  0001 C CNN
+	1    1200 2200
 	-1   0    0    -1  
 $EndComp
 $Comp
@@ -395,12 +395,12 @@ $EndComp
 $Comp
 L GND #PWR013
 U 1 1 58060579
-P 1100 2750
-F 0 "#PWR013" H 1100 2750 30  0001 C CNN
-F 1 "GND" H 1100 2680 30  0001 C CNN
-F 2 "" H 1100 2750 60  0001 C CNN
-F 3 "" H 1100 2750 60  0001 C CNN
-	1    1100 2750
+P 1200 2750
+F 0 "#PWR013" H 1200 2750 30  0001 C CNN
+F 1 "GND" H 1200 2680 30  0001 C CNN
+F 2 "" H 1200 2750 60  0001 C CNN
+F 3 "" H 1200 2750 60  0001 C CNN
+	1    1200 2750
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -502,9 +502,6 @@ F 3 "" H 1850 2750 60  0001 C CNN
 	1    1850 2750
 	1    0    0    -1  
 $EndComp
-NoConn ~ 1550 1900
-NoConn ~ 1550 2000
-NoConn ~ 1550 2100
 Text GLabel 7400 4800 0    60   Output ~ 0
 M-MISO
 Text GLabel 7400 4900 0    60   Input ~ 0
@@ -703,9 +700,7 @@ $EndComp
 Wire Wire Line
 	9050 1150 9350 1150
 Wire Wire Line
-	1650 1800 1550 1800
-Wire Wire Line
-	1550 1700 1800 1700
+	1550 2000 1800 2000
 Wire Wire Line
 	9800 1300 9800 1150
 Wire Wire Line
@@ -759,7 +754,7 @@ Connection ~ 2750 1500
 Wire Wire Line
 	2050 1500 1650 1500
 Wire Wire Line
-	1650 1500 1650 1800
+	1650 1500 1650 2100
 Wire Wire Line
 	2050 1550 2050 1500
 Wire Wire Line
@@ -778,7 +773,7 @@ Connection ~ 3350 1000
 Wire Wire Line
 	1850 2750 1850 2700
 Wire Wire Line
-	1100 2750 1100 2650
+	1200 2750 1200 2650
 Wire Wire Line
 	7900 4800 7950 4800
 Wire Wire Line
@@ -908,4 +903,6 @@ Wire Wire Line
 	2850 3850 2850 3800
 Wire Wire Line
 	2850 3800 2550 3800
+Wire Wire Line
+	1650 2100 1550 2100
 $EndSCHEMATC
