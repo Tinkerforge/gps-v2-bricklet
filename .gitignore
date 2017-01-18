@@ -4,3 +4,5 @@ software/.pydevproject
 software/.settings
 software/build
 software/src/bricklib2
+software/src/bootstrapper
+software/src/brickletboot
