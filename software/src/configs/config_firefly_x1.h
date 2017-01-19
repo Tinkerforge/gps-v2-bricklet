@@ -24,7 +24,7 @@
 
 #include "xmc_gpio.h"
 
-#define FIREFLY_X1_FIX_LED_PIN          P2_2 // Change to P1_1 in release version
+#define FIREFLY_X1_FIX_LED_PIN          P1_1
 
 #define FIREFLY_X1_USIC_CHANNEL         USIC0_CH1
 #define FIREFLY_X1_USIC                 XMC_SPI0_CH1
@@ -45,8 +45,8 @@
 #define FIREFLY_X1_SERVICE_REQUEST_RX   2
 #define FIREFLY_X1_SERVICE_REQUEST_TX   3
 
-#define FIREFLY_X1_INTERRUPT_PIN        P2_6 // Change to P2_7 in release version
-#define FIREFLY_X1_NRESET_PIN           P2_7 // Change to P2_1 in release version
+#define FIREFLY_X1_INTERRUPT_PIN        P2_7
+#define FIREFLY_X1_NRESET_PIN           P2_1
 #define FIREFLY_X1_PPS_PIN              P2_9
 #define FIREFLY_X1_RTCM_PIN             P1_2
 
