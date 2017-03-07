@@ -101,8 +101,8 @@ BootloaderHandleMessageResponse get_status(const GetStatus *data, GetStatusRespo
 
 BootloaderHandleMessageResponse get_altitude(const GetAltitude *data, GetAltitudeResponse *response) {
 	response->header.length = sizeof(GetAltitudeResponse);
-	response->altitude           = firefly_x1.mixed.altitude.value * (10/firefly_x1.mixed.altitude.scale);
-	response->geoidal_separation = firefly_x1.mixed.height.value   * (10/firefly_x1.mixed.height.scale);
+	response->altitude           = firefly_x1.mixed.altitude.value * (100/firefly_x1.mixed.altitude.scale);
+	response->geoidal_separation = firefly_x1.mixed.height.value   * (100/firefly_x1.mixed.height.scale);
 
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
 }
