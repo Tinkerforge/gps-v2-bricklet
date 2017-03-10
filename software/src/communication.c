@@ -183,19 +183,22 @@ BootloaderHandleMessageResponse get_satellite_status(const GetSatelliteStatus *d
 }
 
 BootloaderHandleMessageResponse set_fix_led_config(const SetFixLEDConfig *data) {
-	if(data->config > GPS_V2_FIX_LED_CONFIG_SHOW_HEARTBEAT) {
+	if(data->config > GPS_V2_FIX_LED_CONFIG_SHOW_PPS) {
 		return HANDLE_MESSAGE_RESPONSE_INVALID_PARAMETER;
 	}
 
-	// The error config and flicker config are not the same, we save the "show error" option as "external"
-	if(data->config == GPS_V2_FIX_LED_CONFIG_SHOW_FIX) {
+	// The fix config and flicker config are not the same, we save the
+	// "show fix" and "show pps" options as "external"
+	if(data->config == GPS_V2_FIX_LED_CONFIG_SHOW_FIX || data->config == GPS_V2_FIX_LED_CONFIG_SHOW_PPS) {
 		firefly_x1.fix_led_state.config = LED_FLICKER_CONFIG_EXTERNAL;
 	} else {
 		firefly_x1.fix_led_state.config = data->config;
 	}
 
+	firefly_x1.fix_led_config = data->config;
+
 	// Set LED according to value
-	if(firefly_x1.fix_led_state.config == GPS_V2_FIX_LED_CONFIG_OFF || firefly_x1.fix_led_state.config == LED_FLICKER_CONFIG_EXTERNAL) {
+	if(firefly_x1.fix_led_state.config == LED_FLICKER_CONFIG_OFF || firefly_x1.fix_led_state.config == LED_FLICKER_CONFIG_EXTERNAL) {
 		XMC_GPIO_SetOutputHigh(FIREFLY_X1_FIX_LED_PIN);
 	} else {
 		XMC_GPIO_SetOutputLow(FIREFLY_X1_FIX_LED_PIN);
@@ -206,12 +209,7 @@ BootloaderHandleMessageResponse set_fix_led_config(const SetFixLEDConfig *data) 
 
 BootloaderHandleMessageResponse get_fix_led_config(const GetFixLEDConfig *data, GetFixLEDConfigResponse *response) {
 	response->header.length = sizeof(GetFixLEDConfigResponse);
-
-	if(firefly_x1.fix_led_state.config == LED_FLICKER_CONFIG_EXTERNAL) {
-		response->config = GPS_V2_FIX_LED_CONFIG_SHOW_FIX;
-	} else {
-		response->config = firefly_x1.fix_led_state.config;
-	}
+	response->config = firefly_x1.fix_led_config;
 
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
 }

@@ -28,7 +28,7 @@
 #include "bricklib2/utility/ringbuffer.h"
 #include "bricklib2/utility/led_flicker.h"
 
-#define FIREFLY_X1_FIX_BLINK_TIME 500 // Blink interval in ms
+#define FIREFLY_X1_PPS_BLINK_TIME 200 // Blink duration in ms
 #define FIREFLY_X1_MAX_SENTENCE_LENGTH 512
 
 #define FIREFLY_X1_RECV_BUFFER_SIZE 1024
@@ -93,6 +93,7 @@ typedef struct {
 	FireFlyX1State state;
 	uint32_t wait_8ms_start_time;
 	LEDFlickerState fix_led_state;
+	uint8_t fix_led_config;
 
 	uint8_t restart;
 

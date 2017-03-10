@@ -48,8 +48,9 @@ void communication_init(void);
 
 #define GPS_V2_FIX_LED_CONFIG_OFF 0
 #define GPS_V2_FIX_LED_CONFIG_ON 1
-#define GPS_V2_FIX_LED_CONFIG_SHOW_FIX 2
-#define GPS_V2_FIX_LED_CONFIG_SHOW_HEARTBEAT 3
+#define GPS_V2_FIX_LED_CONFIG_SHOW_HEARTBEAT 2
+#define GPS_V2_FIX_LED_CONFIG_SHOW_FIX 3
+#define GPS_V2_FIX_LED_CONFIG_SHOW_PPS 4
 
 // Function and callback IDs and structs
 #define FID_GET_COORDINATES 1

@@ -32,6 +32,7 @@
 #include "configs/config_firefly_x1.h"
 
 #include "minmea.h"
+#include "communication.h"
 
 extern FireFlyX1 firefly_x1;
 
@@ -66,6 +67,7 @@ void firefly_x1_init(FireFlyX1 *firefly_x1) {
 	firefly_x1->state = FIREFLY_X1_STATE_WAIT_FOR_INTERRUPT;
 	firefly_x1->wait_8ms_start_time = 0;
 	firefly_x1->fix_led_state.config = LED_FLICKER_CONFIG_EXTERNAL;
+	firefly_x1->fix_led_config = GPS_V2_FIX_LED_CONFIG_SHOW_FIX;
 	ringbuffer_init(&firefly_x1->ringbuffer_recv, FIREFLY_X1_RECV_BUFFER_SIZE, (uint8_t*)firefly_x1->buffer_recv);
 
 	// USIC channel configuration
@@ -477,18 +479,32 @@ void firefly_x1_handle_ringbuffer(FireFlyX1 *firefly_x1) {
 }
 
 void firefly_x1_handle_fix_led(FireFlyX1 *firefly_x1) {
-	static uint32_t last_toggle = 0;
+	static bool last_pps_high = false;
+	static uint32_t last_pps_led_on = 0;
 
 	// Handle standard configurations (on, off, heartbeat)
 	led_flicker_tick(&firefly_x1->fix_led_state, system_timer_get_ms(), FIREFLY_X1_FIX_LED_PIN);
 
 	// Handle fix configuration
-	if(firefly_x1->fix_led_state.config == LED_FLICKER_CONFIG_EXTERNAL) {
-		if(firefly_x1->mixed.fix_quality != 0) {
+	if(firefly_x1->fix_led_config == GPS_V2_FIX_LED_CONFIG_SHOW_FIX) {
+		if(firefly_x1->mixed.fix_quality == 0) {
+			XMC_GPIO_SetOutputHigh(FIREFLY_X1_FIX_LED_PIN);
+		} else {
 			XMC_GPIO_SetOutputLow(FIREFLY_X1_FIX_LED_PIN);
-		} else if(system_timer_is_time_elapsed_ms(last_toggle, FIREFLY_X1_FIX_BLINK_TIME)) {
-			last_toggle = system_timer_get_ms();
-			XMC_GPIO_ToggleOutput(FIREFLY_X1_FIX_LED_PIN);
+		}
+	} else if(firefly_x1->fix_led_config == GPS_V2_FIX_LED_CONFIG_SHOW_PPS) {
+		if(XMC_GPIO_GetInput(FIREFLY_X1_PPS_PIN)) {
+			if(!last_pps_high) {
+				XMC_GPIO_SetOutputLow(FIREFLY_X1_FIX_LED_PIN);
+				last_pps_led_on = system_timer_get_ms();
+				last_pps_high = true;
+			}
+		} else {
+			last_pps_high = false;
+		}
+
+		if(system_timer_is_time_elapsed_ms(last_pps_led_on, FIREFLY_X1_PPS_BLINK_TIME)) {
+			XMC_GPIO_SetOutputHigh(FIREFLY_X1_FIX_LED_PIN);
 		}
 	}
 }
