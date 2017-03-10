@@ -484,7 +484,7 @@ void firefly_x1_handle_fix_led(FireFlyX1 *firefly_x1) {
 
 	// Handle fix configuration
 	if(firefly_x1->fix_led_state.config == LED_FLICKER_CONFIG_EXTERNAL) {
-		if(firefly_x1->mixed.valid) {
+		if(firefly_x1->mixed.fix_quality != 0) {
 			XMC_GPIO_SetOutputLow(FIREFLY_X1_FIX_LED_PIN);
 		} else if(system_timer_is_time_elapsed_ms(last_toggle, FIREFLY_X1_FIX_BLINK_TIME)) {
 			last_toggle = system_timer_get_ms();
