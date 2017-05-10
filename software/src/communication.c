@@ -64,8 +64,8 @@ BootloaderHandleMessageResponse handle_message(const void *message, void *respon
 }
 
 
-BootloaderHandleMessageResponse get_coordinates(const GetCoordinates *data, GetCoordinatesResponse *response) {
-	response->header.length = sizeof(GetCoordinatesResponse);
+BootloaderHandleMessageResponse get_coordinates(const GetCoordinates *data, GetCoordinates_Response *response) {
+	response->header.length = sizeof(GetCoordinates_Response);
 
 	uint32_t ulat  = firefly_x1.mixed.latitude.value  > 0 ? firefly_x1.mixed.latitude.value  : -firefly_x1.mixed.latitude.value;
 	uint32_t ulong = firefly_x1.mixed.longitude.value > 0 ? firefly_x1.mixed.longitude.value : -firefly_x1.mixed.longitude.value;
@@ -90,8 +90,8 @@ BootloaderHandleMessageResponse get_coordinates(const GetCoordinates *data, GetC
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
 }
 
-BootloaderHandleMessageResponse get_status(const GetStatus *data, GetStatusResponse *response) {
-	response->header.length = sizeof(GetStatusResponse);
+BootloaderHandleMessageResponse get_status(const GetStatus *data, GetStatus_Response *response) {
+	response->header.length = sizeof(GetStatus_Response);
 
 	response->has_fix         = firefly_x1.mixed.fix_quality != 0;
 	response->satellites_view = firefly_x1.mixed.satellites_tracked;
@@ -99,24 +99,24 @@ BootloaderHandleMessageResponse get_status(const GetStatus *data, GetStatusRespo
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
 }
 
-BootloaderHandleMessageResponse get_altitude(const GetAltitude *data, GetAltitudeResponse *response) {
-	response->header.length = sizeof(GetAltitudeResponse);
+BootloaderHandleMessageResponse get_altitude(const GetAltitude *data, GetAltitude_Response *response) {
+	response->header.length = sizeof(GetAltitude_Response);
 	response->altitude           = firefly_x1.mixed.altitude.value * (100/firefly_x1.mixed.altitude.scale);
 	response->geoidal_separation = firefly_x1.mixed.height.value   * (100/firefly_x1.mixed.height.scale);
 
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
 }
 
-BootloaderHandleMessageResponse get_motion(const GetMotion *data, GetMotionResponse *response) {
-	response->header.length = sizeof(GetMotionResponse);
+BootloaderHandleMessageResponse get_motion(const GetMotion *data, GetMotion_Response *response) {
+	response->header.length = sizeof(GetMotion_Response);
 	response->course = firefly_x1.mixed.course.value * (100/firefly_x1.mixed.course.scale);
 	response->speed  = firefly_x1.mixed.speed.value  * (100/firefly_x1.mixed.speed.scale);
 
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
 }
 
-BootloaderHandleMessageResponse get_date_time(const GetDateTime *data, GetDateTimeResponse *response) {
-	response->header.length = sizeof(GetDateTimeResponse);
+BootloaderHandleMessageResponse get_date_time(const GetDateTime *data, GetDateTime_Response *response) {
+	response->header.length = sizeof(GetDateTime_Response);
 	response->date = firefly_x1.mixed.date.day*100*100 + firefly_x1.mixed.date.month*100 + firefly_x1.mixed.date.year;
 	response->time = firefly_x1.mixed.time.hours*1000*100*100 + firefly_x1.mixed.time.minutes*1000*100 + firefly_x1.mixed.time.seconds*1000 + firefly_x1.mixed.time.microseconds;
 
@@ -135,8 +135,8 @@ BootloaderHandleMessageResponse restart(const Restart *data) {
 	return HANDLE_MESSAGE_RESPONSE_EMPTY;
 }
 
-BootloaderHandleMessageResponse get_satellite_system_status(const GetSatelliteSystemStatus *data, GetSatelliteSystemStatusResponse *response) {
-	response->header.length = sizeof(GetSatelliteSystemStatusResponse);
+BootloaderHandleMessageResponse get_satellite_system_status(const GetSatelliteSystemStatus *data, GetSatelliteSystemStatus_Response *response) {
+	response->header.length = sizeof(GetSatelliteSystemStatus_Response);
 
 	FireFlyX1DataSingle *single;
 	if(data->satellite_system == GPS_V2_SATELLITE_SYSTEM_GPS) {
@@ -148,7 +148,7 @@ BootloaderHandleMessageResponse get_satellite_system_status(const GetSatelliteSy
 	}
 
 	for(uint8_t i = 0; i < 12; i++) {
-		response->satellites[i] = single->sats[i];
+		response->satellite_numbers[i] = single->sats[i];
 	}
 
 	response->fix  = single->fix_type;
@@ -159,8 +159,8 @@ BootloaderHandleMessageResponse get_satellite_system_status(const GetSatelliteSy
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
 }
 
-BootloaderHandleMessageResponse get_satellite_status(const GetSatelliteStatus *data, GetSatelliteStatusResponse *response) {
-	response->header.length = sizeof(GetSatelliteStatusResponse);
+BootloaderHandleMessageResponse get_satellite_status(const GetSatelliteStatus *data, GetSatelliteStatus_Response *response) {
+	response->header.length = sizeof(GetSatelliteStatus_Response);
 
 	FireFlyX1DataSingle *single;
 	if(data->satellite_system == GPS_V2_SATELLITE_SYSTEM_GPS) {
@@ -207,8 +207,8 @@ BootloaderHandleMessageResponse set_fix_led_config(const SetFixLEDConfig *data) 
 	return HANDLE_MESSAGE_RESPONSE_EMPTY;
 }
 
-BootloaderHandleMessageResponse get_fix_led_config(const GetFixLEDConfig *data, GetFixLEDConfigResponse *response) {
-	response->header.length = sizeof(GetFixLEDConfigResponse);
+BootloaderHandleMessageResponse get_fix_led_config(const GetFixLEDConfig *data, GetFixLEDConfig_Response *response) {
+	response->header.length = sizeof(GetFixLEDConfig_Response);
 	response->config = firefly_x1.fix_led_config;
 
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
@@ -224,8 +224,8 @@ BootloaderHandleMessageResponse set_coordinates_callback_period(const SetCoordin
 	return HANDLE_MESSAGE_RESPONSE_EMPTY;
 }
 
-BootloaderHandleMessageResponse get_coordinates_callback_period(const GetCoordinatesCallbackPeriod *data, GetCoordinatesCallbackPeriodResponse *response) {
-	response->header.length = sizeof(GetCoordinatesCallbackPeriodResponse);
+BootloaderHandleMessageResponse get_coordinates_callback_period(const GetCoordinatesCallbackPeriod *data, GetCoordinatesCallbackPeriod_Response *response) {
+	response->header.length = sizeof(GetCoordinatesCallbackPeriod_Response);
 	response->period = callback_period_coordinates;
 
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
@@ -237,8 +237,8 @@ BootloaderHandleMessageResponse set_status_callback_period(const SetStatusCallba
 	return HANDLE_MESSAGE_RESPONSE_EMPTY;
 }
 
-BootloaderHandleMessageResponse get_status_callback_period(const GetStatusCallbackPeriod *data, GetStatusCallbackPeriodResponse *response) {
-	response->header.length = sizeof(GetStatusCallbackPeriodResponse);
+BootloaderHandleMessageResponse get_status_callback_period(const GetStatusCallbackPeriod *data, GetStatusCallbackPeriod_Response *response) {
+	response->header.length = sizeof(GetStatusCallbackPeriod_Response);
 	response->period = callback_period_status;
 
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
@@ -250,8 +250,8 @@ BootloaderHandleMessageResponse set_altitude_callback_period(const SetAltitudeCa
 	return HANDLE_MESSAGE_RESPONSE_EMPTY;
 }
 
-BootloaderHandleMessageResponse get_altitude_callback_period(const GetAltitudeCallbackPeriod *data, GetAltitudeCallbackPeriodResponse *response) {
-	response->header.length = sizeof(GetAltitudeCallbackPeriodResponse);
+BootloaderHandleMessageResponse get_altitude_callback_period(const GetAltitudeCallbackPeriod *data, GetAltitudeCallbackPeriod_Response *response) {
+	response->header.length = sizeof(GetAltitudeCallbackPeriod_Response);
 	response->period = callback_period_altitude;
 
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
@@ -263,8 +263,8 @@ BootloaderHandleMessageResponse set_motion_callback_period(const SetMotionCallba
 	return HANDLE_MESSAGE_RESPONSE_EMPTY;
 }
 
-BootloaderHandleMessageResponse get_motion_callback_period(const GetMotionCallbackPeriod *data, GetMotionCallbackPeriodResponse *response) {
-	response->header.length = sizeof(GetMotionCallbackPeriodResponse);
+BootloaderHandleMessageResponse get_motion_callback_period(const GetMotionCallbackPeriod *data, GetMotionCallbackPeriod_Response *response) {
+	response->header.length = sizeof(GetMotionCallbackPeriod_Response);
 	response->period = callback_period_motion;
 
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
@@ -276,23 +276,22 @@ BootloaderHandleMessageResponse set_date_time_callback_period(const SetDateTimeC
 	return HANDLE_MESSAGE_RESPONSE_EMPTY;
 }
 
-BootloaderHandleMessageResponse get_date_time_callback_period(const GetDateTimeCallbackPeriod *data, GetDateTimeCallbackPeriodResponse *response) {
-	response->header.length = sizeof(GetDateTimeCallbackPeriodResponse);
+BootloaderHandleMessageResponse get_date_time_callback_period(const GetDateTimeCallbackPeriod *data, GetDateTimeCallbackPeriod_Response *response) {
+	response->header.length = sizeof(GetDateTimeCallbackPeriod_Response);
 	response->period = callback_period_date_time;
 
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
 }
 
-
 bool handle_pulse_per_second_callback(void) {
 	static bool last_pps_high = false;
 	static bool is_buffered = false;
-	static PulsePerSecondCallback cb;
+	static PulsePerSecond_Callback cb;
 
 	if(!is_buffered) {
 		if(XMC_GPIO_GetInput(FIREFLY_X1_PPS_PIN)) {
 			if(!last_pps_high) {
-				tfp_make_default_header(&cb.header, bootloader_get_uid(), sizeof(PulsePerSecondCallback), FID_CALLBACK_PULSE_PER_SECOND);
+				tfp_make_default_header(&cb.header, bootloader_get_uid(), sizeof(PulsePerSecond_Callback), FID_CALLBACK_PULSE_PER_SECOND);
 				last_pps_high = true;
 			} else {
 				return false;
@@ -304,7 +303,7 @@ bool handle_pulse_per_second_callback(void) {
 	}
 
 	if(bootloader_spitfp_is_send_possible(&bootloader_status.st)) {
-		bootloader_spitfp_send_ack_and_message(&bootloader_status, (uint8_t*)&cb, sizeof(PulsePerSecondCallback));
+		bootloader_spitfp_send_ack_and_message(&bootloader_status, (uint8_t*)&cb, sizeof(PulsePerSecond_Callback));
 		is_buffered = false;
 		return true;
 	} else {
@@ -316,22 +315,22 @@ bool handle_pulse_per_second_callback(void) {
 
 bool handle_coordinates_callback(void) {
 	static bool is_buffered = false;
-	static CoordinatesCallback cb;
+	static Coordinates_Callback cb;
 	static uint32_t last_callback = 0;
 
 	if(!is_buffered) {
 		if(callback_period_coordinates != 0 && firefly_x1.new_coordinates && system_timer_is_time_elapsed_ms(last_callback, callback_period_coordinates)) {
 			firefly_x1.new_coordinates = false;
 			last_callback = system_timer_get_ms();
-			tfp_make_default_header(&cb.header, bootloader_get_uid(), sizeof(CoordinatesCallback), FID_CALLBACK_COORDINATES);
-			get_coordinates(NULL, (GetCoordinatesResponse *) &cb);
+			tfp_make_default_header(&cb.header, bootloader_get_uid(), sizeof(Coordinates_Callback), FID_CALLBACK_COORDINATES);
+			get_coordinates(NULL, (GetCoordinates_Response *) &cb);
 		} else {
 			return false;
 		}
 	}
 
 	if(bootloader_spitfp_is_send_possible(&bootloader_status.st)) {
-		bootloader_spitfp_send_ack_and_message(&bootloader_status, (uint8_t*)&cb, sizeof(CoordinatesCallback));
+		bootloader_spitfp_send_ack_and_message(&bootloader_status, (uint8_t*)&cb, sizeof(Coordinates_Callback));
 		is_buffered = false;
 		return true;
 	} else {
@@ -343,22 +342,22 @@ bool handle_coordinates_callback(void) {
 
 bool handle_status_callback(void) {
 	static bool is_buffered = false;
-	static StatusCallback cb;
+	static Status_Callback cb;
 	static uint32_t last_callback = 0;
 
 	if(!is_buffered) {
 		if(callback_period_status != 0 && firefly_x1.new_status && system_timer_is_time_elapsed_ms(last_callback, callback_period_status)) {
 			firefly_x1.new_status = false;
 			last_callback = system_timer_get_ms();
-			tfp_make_default_header(&cb.header, bootloader_get_uid(), sizeof(StatusCallback), FID_CALLBACK_STATUS);
-			get_status(NULL, (GetStatusResponse *) &cb);
+			tfp_make_default_header(&cb.header, bootloader_get_uid(), sizeof(Status_Callback), FID_CALLBACK_STATUS);
+			get_status(NULL, (GetStatus_Response *) &cb);
 		} else {
 			return false;
 		}
 	}
 
 	if(bootloader_spitfp_is_send_possible(&bootloader_status.st)) {
-		bootloader_spitfp_send_ack_and_message(&bootloader_status, (uint8_t*)&cb, sizeof(StatusCallback));
+		bootloader_spitfp_send_ack_and_message(&bootloader_status, (uint8_t*)&cb, sizeof(Status_Callback));
 		is_buffered = false;
 		return true;
 	} else {
@@ -370,22 +369,22 @@ bool handle_status_callback(void) {
 
 bool handle_altitude_callback(void) {
 	static bool is_buffered = false;
-	static AltitudeCallback cb;
+	static Altitude_Callback cb;
 	static uint32_t last_callback = 0;
 
 	if(!is_buffered) {
 		if(callback_period_altitude != 0 && firefly_x1.new_altitude && system_timer_is_time_elapsed_ms(last_callback, callback_period_altitude)) {
 			firefly_x1.new_altitude = false;
 			last_callback = system_timer_get_ms();
-			tfp_make_default_header(&cb.header, bootloader_get_uid(), sizeof(AltitudeCallback), FID_CALLBACK_ALTITUDE);
-			get_altitude(NULL, (GetAltitudeResponse *) &cb);
+			tfp_make_default_header(&cb.header, bootloader_get_uid(), sizeof(Altitude_Callback), FID_CALLBACK_ALTITUDE);
+			get_altitude(NULL, (GetAltitude_Response *) &cb);
 		} else {
 			return false;
 		}
 	}
 
 	if(bootloader_spitfp_is_send_possible(&bootloader_status.st)) {
-		bootloader_spitfp_send_ack_and_message(&bootloader_status, (uint8_t*)&cb, sizeof(AltitudeCallback));
+		bootloader_spitfp_send_ack_and_message(&bootloader_status, (uint8_t*)&cb, sizeof(Altitude_Callback));
 		is_buffered = false;
 		return true;
 	} else {
@@ -397,22 +396,22 @@ bool handle_altitude_callback(void) {
 
 bool handle_motion_callback(void) {
 	static bool is_buffered = false;
-	static MotionCallback cb;
+	static Motion_Callback cb;
 	static uint32_t last_callback = 0;
 
 	if(!is_buffered) {
 		if(callback_period_motion != 0 && firefly_x1.new_motion && system_timer_is_time_elapsed_ms(last_callback, callback_period_motion)) {
 			firefly_x1.new_motion = false;
 			last_callback = system_timer_get_ms();
-			tfp_make_default_header(&cb.header, bootloader_get_uid(), sizeof(MotionCallback), FID_CALLBACK_MOTION);
-			get_motion(NULL, (GetMotionResponse *) &cb);
+			tfp_make_default_header(&cb.header, bootloader_get_uid(), sizeof(Motion_Callback), FID_CALLBACK_MOTION);
+			get_motion(NULL, (GetMotion_Response *) &cb);
 		} else {
 			return false;
 		}
 	}
 
 	if(bootloader_spitfp_is_send_possible(&bootloader_status.st)) {
-		bootloader_spitfp_send_ack_and_message(&bootloader_status, (uint8_t*)&cb, sizeof(MotionCallback));
+		bootloader_spitfp_send_ack_and_message(&bootloader_status, (uint8_t*)&cb, sizeof(Motion_Callback));
 		is_buffered = false;
 		return true;
 	} else {
@@ -424,22 +423,22 @@ bool handle_motion_callback(void) {
 
 bool handle_date_time_callback(void) {
 	static bool is_buffered = false;
-	static DateTimeCallback cb;
+	static DateTime_Callback cb;
 	static uint32_t last_callback = 0;
 
 	if(!is_buffered) {
 		if(callback_period_date_time != 0 && firefly_x1.new_date_time && system_timer_is_time_elapsed_ms(last_callback, callback_period_date_time)) {
 			firefly_x1.new_date_time = false;
 			last_callback = system_timer_get_ms();
-			tfp_make_default_header(&cb.header, bootloader_get_uid(), sizeof(DateTimeCallback), FID_CALLBACK_DATE_TIME);
-			get_date_time(NULL, (GetDateTimeResponse *) &cb);
+			tfp_make_default_header(&cb.header, bootloader_get_uid(), sizeof(DateTime_Callback), FID_CALLBACK_DATE_TIME);
+			get_date_time(NULL, (GetDateTime_Response *) &cb);
 		} else {
 			return false;
 		}
 	}
 
 	if(bootloader_spitfp_is_send_possible(&bootloader_status.st)) {
-		bootloader_spitfp_send_ack_and_message(&bootloader_status, (uint8_t*)&cb, sizeof(DateTimeCallback));
+		bootloader_spitfp_send_ack_and_message(&bootloader_status, (uint8_t*)&cb, sizeof(DateTime_Callback));
 		is_buffered = false;
 		return true;
 	} else {
