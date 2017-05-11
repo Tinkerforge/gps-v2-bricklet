@@ -59,7 +59,7 @@ void communication_init(void);
 #define FID_GET_MOTION 4
 #define FID_GET_DATE_TIME 5
 #define FID_RESTART 6
-#define FID_GET_SATELLITE_SYSTEM_STATUS 7
+#define FID_GET_SATELLITE_SYSTEM_STATUS_LOW_LEVEL 7
 #define FID_GET_SATELLITE_STATUS 8
 #define FID_SET_FIX_LED_CONFIG 9
 #define FID_GET_FIX_LED_CONFIG 10
@@ -141,16 +141,17 @@ typedef struct {
 typedef struct {
 	TFPMessageHeader header;
 	uint8_t satellite_system;
-} __attribute__((__packed__)) GetSatelliteSystemStatus;
+} __attribute__((__packed__)) GetSatelliteSystemStatusLowLevel;
 
 typedef struct {
 	TFPMessageHeader header;
-	int8_t satellite_numbers[12];
+	uint8_t satellite_numbers_length;
+	uint8_t satellite_numbers_data[12];
 	uint8_t fix;
 	uint16_t pdop;
 	uint16_t hdop;
 	uint16_t vdop;
-} __attribute__((__packed__)) GetSatelliteSystemStatus_Response;
+} __attribute__((__packed__)) GetSatelliteSystemStatusLowLevel_Response;
 
 typedef struct {
 	TFPMessageHeader header;
@@ -293,7 +294,7 @@ BootloaderHandleMessageResponse get_altitude(const GetAltitude *data, GetAltitud
 BootloaderHandleMessageResponse get_motion(const GetMotion *data, GetMotion_Response *response);
 BootloaderHandleMessageResponse get_date_time(const GetDateTime *data, GetDateTime_Response *response);
 BootloaderHandleMessageResponse restart(const Restart *data);
-BootloaderHandleMessageResponse get_satellite_system_status(const GetSatelliteSystemStatus *data, GetSatelliteSystemStatus_Response *response);
+BootloaderHandleMessageResponse get_satellite_system_status_low_level(const GetSatelliteSystemStatusLowLevel *data, GetSatelliteSystemStatusLowLevel_Response *response);
 BootloaderHandleMessageResponse get_satellite_status(const GetSatelliteStatus *data, GetSatelliteStatus_Response *response);
 BootloaderHandleMessageResponse set_fix_led_config(const SetFixLEDConfig *data);
 BootloaderHandleMessageResponse get_fix_led_config(const GetFixLEDConfig *data, GetFixLEDConfig_Response *response);

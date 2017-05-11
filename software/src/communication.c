@@ -45,7 +45,7 @@ BootloaderHandleMessageResponse handle_message(const void *message, void *respon
 		case FID_GET_MOTION: return get_motion(message, response);
 		case FID_GET_DATE_TIME: return get_date_time(message, response);
 		case FID_RESTART: return restart(message);
-		case FID_GET_SATELLITE_SYSTEM_STATUS: return get_satellite_system_status(message, response);
+		case FID_GET_SATELLITE_SYSTEM_STATUS_LOW_LEVEL: return get_satellite_system_status_low_level(message, response);
 		case FID_GET_SATELLITE_STATUS: return get_satellite_status(message, response);
 		case FID_SET_FIX_LED_CONFIG: return set_fix_led_config(message);
 		case FID_GET_FIX_LED_CONFIG: return get_fix_led_config(message, response);
@@ -135,8 +135,8 @@ BootloaderHandleMessageResponse restart(const Restart *data) {
 	return HANDLE_MESSAGE_RESPONSE_EMPTY;
 }
 
-BootloaderHandleMessageResponse get_satellite_system_status(const GetSatelliteSystemStatus *data, GetSatelliteSystemStatus_Response *response) {
-	response->header.length = sizeof(GetSatelliteSystemStatus_Response);
+BootloaderHandleMessageResponse get_satellite_system_status_low_level(const GetSatelliteSystemStatusLowLevel *data, GetSatelliteSystemStatusLowLevel_Response *response) {
+	response->header.length = sizeof(GetSatelliteSystemStatusLowLevel_Response);
 
 	FireFlyX1DataSingle *single;
 	if(data->satellite_system == GPS_V2_SATELLITE_SYSTEM_GPS) {
@@ -147,8 +147,16 @@ BootloaderHandleMessageResponse get_satellite_system_status(const GetSatelliteSy
 		return HANDLE_MESSAGE_RESPONSE_INVALID_PARAMETER;
 	}
 
+	response->satellite_numbers_length = 0;
+
 	for(uint8_t i = 0; i < 12; i++) {
-		response->satellite_numbers[i] = single->sats[i];
+		if(single->sats[i] != 0) {
+			response->satellite_numbers_data[response->satellite_numbers_length++] = single->sats[i];
+		}
+	}
+
+	for(uint8_t i = response->satellite_numbers_length; i < 12; i++) {
+		response->satellite_numbers_data[i] = 0;
 	}
 
 	response->fix  = single->fix_type;
