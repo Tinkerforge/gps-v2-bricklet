@@ -256,7 +256,7 @@ void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
 			firefly_x1->mixed.valid     = rmc.valid;
 			firefly_x1->mixed.latitude  = rmc.latitude;
 			firefly_x1->mixed.longitude = rmc.longitude;
-			firefly_x1->mixed.speed     = rmc.speed;
+			firefly_x1->mixed.speed     = rmc.speed; // knots
 			firefly_x1->mixed.course    = rmc.course;
 			firefly_x1->mixed.date      = rmc.date;
 			firefly_x1->mixed.variation = rmc.variation;

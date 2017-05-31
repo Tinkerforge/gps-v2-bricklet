@@ -1,2 +1,5 @@
-2017-05-11: 2.0.0 (<unknown>)
+2017-05-11: 2.0.0 (901f7c7)
 - Initial version
+
+2017-05-31: 2.0.1 (<unknown>)
+- Report speed correctly as km/h instead of knots

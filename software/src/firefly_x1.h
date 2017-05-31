@@ -54,7 +54,7 @@ typedef struct {
     bool valid;
     struct minmea_float latitude;
     struct minmea_float longitude;
-    struct minmea_float speed;
+    struct minmea_float speed; // knots
     struct minmea_float course;
     struct minmea_date date;
     struct minmea_float variation;

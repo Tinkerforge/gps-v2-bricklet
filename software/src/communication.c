@@ -110,7 +110,7 @@ BootloaderHandleMessageResponse get_altitude(const GetAltitude *data, GetAltitud
 BootloaderHandleMessageResponse get_motion(const GetMotion *data, GetMotion_Response *response) {
 	response->header.length = sizeof(GetMotion_Response);
 	response->course = firefly_x1.mixed.course.value * (100/firefly_x1.mixed.course.scale);
-	response->speed  = firefly_x1.mixed.speed.value  * (100/firefly_x1.mixed.speed.scale);
+	response->speed  = firefly_x1.mixed.speed.value  * 100 * 1852 / (firefly_x1.mixed.speed.scale * 1000); // knots -> km/h
 
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
 }
