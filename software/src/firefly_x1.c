@@ -200,6 +200,8 @@ void firefly_x1_init(FireFlyX1 *firefly_x1) {
 	//XMC_USIC_CH_EnableEvent(FIREFLY_X1_USIC, (uint32_t)((uint32_t)XMC_USIC_CH_EVENT_STANDARD_RECEIVE | (uint32_t)XMC_USIC_CH_EVENT_ALTERNATIVE_RECEIVE));
 	XMC_USIC_CH_RXFIFO_EnableEvent(FIREFLY_X1_USIC, XMC_USIC_CH_RXFIFO_EVENT_CONF_STANDARD | XMC_USIC_CH_RXFIFO_EVENT_CONF_ALTERNATE);
 
+	firefly_x1->last_data_time = system_timer_get_ms();
+	firefly_x1->last_interrupt_time = system_timer_get_ms();
 }
 
 void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
@@ -219,6 +221,8 @@ void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
 		// Unknown talker
 		return;
 	}
+
+	firefly_x1->last_data_time = system_timer_get_ms();
 
 
 	switch(id) {
@@ -387,7 +391,9 @@ void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
 
 void firefly_x1_handle_state_wait_for_interrupt(FireFlyX1 *firefly_x1) {
 	// Interrupt = pin LOW
-	if(!XMC_GPIO_GetInput(FIREFLY_X1_INTERRUPT_PIN)) {
+	if((!XMC_GPIO_GetInput(FIREFLY_X1_INTERRUPT_PIN)) ||
+	   system_timer_is_time_elapsed_ms(firefly_x1->last_interrupt_time, FIREFLY_X1_INTERRUPT_TIMEOUT)) {
+		firefly_x1->last_interrupt_time = system_timer_get_ms();
 		memset(firefly_x1->buffer_send, 0xAA, FIREFLY_X1_SEND_BUFFER_SIZE);
 
 		if(firefly_x1->restart != 0) {
@@ -428,7 +434,6 @@ void firefly_x1_handle_state_receive_in_progress(FireFlyX1 *firefly_x1) {
 		firefly_x1->wait_8ms_start_time = system_timer_get_ms();
 		firefly_x1->state = FIREFLY_X1_STATE_WAIT_8MS;
 	}
-
 }
 
 void firefly_x1_handle_state_wait_8ms(FireFlyX1 *firefly_x1) {
@@ -437,6 +442,16 @@ void firefly_x1_handle_state_wait_8ms(FireFlyX1 *firefly_x1) {
 	}
 }
 
+void firefly_x1_handle_state_reset(FireFlyX1 *firefly_x1) {
+	if(firefly_x1->reset_time == 0) {
+		firefly_x1->reset_time = system_timer_get_ms();
+		XMC_GPIO_SetOutputLow(FIREFLY_X1_NRESET_PIN);
+	} else if(system_timer_is_time_elapsed_ms(firefly_x1->reset_time, FIREFLY_X1_RESET_TIMEOUT)) {
+		XMC_GPIO_SetOutputHigh(FIREFLY_X1_NRESET_PIN);
+		firefly_x1->reset_time = 0;
+		firefly_x1->state = FIREFLY_X1_STATE_WAIT_FOR_INTERRUPT;
+	}
+}
 
 void firefly_x1_handle_ringbuffer(FireFlyX1 *firefly_x1) {
 	static char sentence[FIREFLY_X1_MAX_SENTENCE_LENGTH+1] = {0};
@@ -514,8 +529,13 @@ void firefly_x1_tick(FireFlyX1 *firefly_x1) {
 		case FIREFLY_X1_STATE_WAIT_FOR_INTERRUPT:   firefly_x1_handle_state_wait_for_interrupt(firefly_x1);  break;
 		case FIREFLY_X1_STATE_RECEIVE_IN_PROGRESS:  firefly_x1_handle_state_receive_in_progress(firefly_x1); break;
 		case FIREFLY_X1_STATE_WAIT_8MS:             firefly_x1_handle_state_wait_8ms(firefly_x1);            break;
+		case FIREFLY_X1_STATE_RESET:                firefly_x1_handle_state_reset(firefly_x1);               break;
 	}
 
 	firefly_x1_handle_ringbuffer(firefly_x1);
 	firefly_x1_handle_fix_led(firefly_x1);
+
+	if(system_timer_is_time_elapsed_ms(firefly_x1->last_data_time, FIREFLY_X1_DATA_TIMEOUT)) {
+		firefly_x1->state = FIREFLY_X1_STATE_RESET;
+	}
 }

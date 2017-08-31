@@ -38,6 +38,10 @@
 
 #define FIREFLY_X1_MAX_SAT_NUM 32
 
+#define FIREFLY_X1_INTERRUPT_TIMEOUT 2000
+#define FIREFLY_X1_DATA_TIMEOUT 10000
+#define FIREFLY_X1_RESET_TIMEOUT 1000
+
 typedef struct {
     char mode;
     int fix_type;
@@ -82,6 +86,7 @@ typedef enum {
 	FIREFLY_X1_STATE_WAIT_FOR_INTERRUPT,
 	FIREFLY_X1_STATE_RECEIVE_IN_PROGRESS,
 	FIREFLY_X1_STATE_WAIT_8MS,
+	FIREFLY_X1_STATE_RESET,
 } FireFlyX1State;
 
 typedef struct {
@@ -94,6 +99,10 @@ typedef struct {
 	uint32_t wait_8ms_start_time;
 	LEDFlickerState fix_led_state;
 	uint8_t fix_led_config;
+
+	uint32_t last_interrupt_time;
+	uint32_t last_data_time;
+	uint32_t reset_time;
 
 	uint8_t restart;
 
