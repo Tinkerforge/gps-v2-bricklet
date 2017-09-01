@@ -59,6 +59,8 @@ BootloaderHandleMessageResponse handle_message(const void *message, void *respon
 		case FID_GET_MOTION_CALLBACK_PERIOD: return get_motion_callback_period(message, response);
 		case FID_SET_DATE_TIME_CALLBACK_PERIOD: return set_date_time_callback_period(message);
 		case FID_GET_DATE_TIME_CALLBACK_PERIOD: return get_date_time_callback_period(message, response);
+		case FID_SET_SBAS_CONFIG: return set_sbas_config(message);
+		case FID_GET_SBAS_CONFIG: return get_sbas_config(message, response);
 		default: return HANDLE_MESSAGE_RESPONSE_NOT_SUPPORTED;
 	}
 }
@@ -287,6 +289,28 @@ BootloaderHandleMessageResponse set_date_time_callback_period(const SetDateTimeC
 BootloaderHandleMessageResponse get_date_time_callback_period(const GetDateTimeCallbackPeriod *data, GetDateTimeCallbackPeriod_Response *response) {
 	response->header.length = sizeof(GetDateTimeCallbackPeriod_Response);
 	response->period = callback_period_date_time;
+
+	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
+}
+
+BootloaderHandleMessageResponse set_sbas_config(const SetSBASConfig *data) {
+	if(data->sbas_config > GPS_V2_SBAS_DISABLED) {
+		return HANDLE_MESSAGE_RESPONSE_INVALID_PARAMETER;
+	}
+
+	firefly_x1.sbas_enabled = data->sbas_config == GPS_V2_SBAS_ENABLED;
+	firefly_x1_update_sbas(&firefly_x1);
+
+	return HANDLE_MESSAGE_RESPONSE_EMPTY;
+}
+
+BootloaderHandleMessageResponse get_sbas_config(const GetSBASConfig *data, GetSBASConfig_Response *response) {
+	response->header.length = sizeof(GetSBASConfig_Response);
+	if(firefly_x1.sbas_enabled) {
+		response->sbas_config = GPS_V2_SBAS_ENABLED;
+	} else {
+		response->sbas_config = GPS_V2_SBAS_DISABLED;
+	}
 
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
 }

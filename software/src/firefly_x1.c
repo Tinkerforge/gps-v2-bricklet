@@ -202,6 +202,22 @@ void firefly_x1_init(FireFlyX1 *firefly_x1) {
 
 	firefly_x1->last_data_time = system_timer_get_ms();
 	firefly_x1->last_interrupt_time = system_timer_get_ms();
+	firefly_x1->last_send_time = system_timer_get_ms();
+
+	firefly_x1->sbas_enabled = true;
+	firefly_x1_update_sbas(firefly_x1);
+}
+
+void firefly_x1_update_sbas(FireFlyX1 *firefly_x1) {
+	if(firefly_x1->sbas_enabled) {
+		firefly_x1->sbas = FIREFLY_X1_SBAS_ENABLE | FIREFLY_X1_SBAS_5HZ;
+	} else {
+		firefly_x1->sbas = FIREFLY_X1_SBAS_DISABLE | FIREFLY_X1_SBAS_10HZ;
+	}
+
+	// We don't use uart, but we still have to increase the baudrate to get
+	// update rates of above 1Hz.
+	firefly_x1->sbas |= FIREFLY_X1_SBAS_BAUDRATE;
 }
 
 void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
@@ -402,18 +418,39 @@ void firefly_x1_handle_state_wait_for_interrupt(FireFlyX1 *firefly_x1) {
 			memset(&firefly_x1->glonass, 0, sizeof(FireFlyX1DataSingle));
 		}
 
-		if(firefly_x1->restart & FIREFLY_X1_RESTART_HOT) {
-			strcpy(firefly_x1->buffer_send, "$PMTK101*32\r\n");
-			firefly_x1->restart &= ~FIREFLY_X1_RESTART_HOT;
-		} else if(firefly_x1->restart & FIREFLY_X1_RESTART_WARM) {
-			strcpy(firefly_x1->buffer_send, "$PMTK102*31\r\n");
-			firefly_x1->restart &= ~FIREFLY_X1_RESTART_WARM;
-		} else if(firefly_x1->restart & FIREFLY_X1_RESTART_COLD) {
-			strcpy(firefly_x1->buffer_send, "$PMTK103*30\r\n");
-			firefly_x1->restart &= ~FIREFLY_X1_RESTART_COLD;
-		} else if(firefly_x1->restart & FIREFLY_X1_RESTART_FACTORY) {
-			strcpy(firefly_x1->buffer_send, "$PMTK104*37\r\n");
-			firefly_x1->restart &= ~FIREFLY_X1_RESTART_FACTORY;
+		if(system_timer_is_time_elapsed_ms(firefly_x1->last_send_time, FIREFLY_X1_TIME_BETWEEN_SENDS)) {
+			if(firefly_x1->restart & FIREFLY_X1_RESTART_HOT) {
+				strcpy(firefly_x1->buffer_send, "$PMTK101*32\r\n");
+				firefly_x1->restart &= ~FIREFLY_X1_RESTART_HOT;
+			} else if(firefly_x1->restart & FIREFLY_X1_RESTART_WARM) {
+				strcpy(firefly_x1->buffer_send, "$PMTK102*31\r\n");
+				firefly_x1->restart &= ~FIREFLY_X1_RESTART_WARM;
+			} else if(firefly_x1->restart & FIREFLY_X1_RESTART_COLD) {
+				strcpy(firefly_x1->buffer_send, "$PMTK103*30\r\n");
+				firefly_x1->restart &= ~FIREFLY_X1_RESTART_COLD;
+			} else if(firefly_x1->restart & FIREFLY_X1_RESTART_FACTORY) {
+				strcpy(firefly_x1->buffer_send, "$PMTK104*37\r\n");
+				firefly_x1->restart &= ~FIREFLY_X1_RESTART_FACTORY;
+			} else if(firefly_x1->sbas & FIREFLY_X1_SBAS_BAUDRATE) {
+				strcpy(firefly_x1->buffer_send, "$PMTK251,115200*1F\r\n");
+				firefly_x1->sbas &= ~FIREFLY_X1_SBAS_BAUDRATE;
+			} else if(firefly_x1->sbas & FIREFLY_X1_SBAS_DISABLE) {
+				strcpy(firefly_x1->buffer_send, "$PMTK313,0*2F\r\n");
+				firefly_x1->sbas &= ~FIREFLY_X1_SBAS_DISABLE;
+			} else if(firefly_x1->sbas & FIREFLY_X1_SBAS_10HZ) {
+				strcpy(firefly_x1->buffer_send, "$PMTK220,100*2F\r\n");
+				firefly_x1->sbas &= ~FIREFLY_X1_SBAS_10HZ;
+			} else if(firefly_x1->sbas & FIREFLY_X1_SBAS_5HZ) {
+				strcpy(firefly_x1->buffer_send, "$PMTK220,200*2C\r\n");
+				firefly_x1->sbas &= ~FIREFLY_X1_SBAS_5HZ;
+			} else if(firefly_x1->sbas & FIREFLY_X1_SBAS_ENABLE) {
+				strcpy(firefly_x1->buffer_send, "$PMTK313,1*2E\r\n");
+				firefly_x1->sbas &= ~FIREFLY_X1_SBAS_ENABLE;
+			}
+
+			if(firefly_x1->buffer_send[0] == '$') {
+				firefly_x1->last_send_time = system_timer_get_ms();
+			}
 		}
 
 		// Start transfer

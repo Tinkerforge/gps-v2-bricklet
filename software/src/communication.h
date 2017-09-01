@@ -52,6 +52,9 @@ void communication_init(void);
 #define GPS_V2_FIX_LED_CONFIG_SHOW_FIX 3
 #define GPS_V2_FIX_LED_CONFIG_SHOW_PPS 4
 
+#define GPS_V2_SBAS_ENABLED 0
+#define GPS_V2_SBAS_DISABLED 1
+
 // Function and callback IDs and structs
 #define FID_GET_COORDINATES 1
 #define FID_GET_STATUS 2
@@ -73,6 +76,8 @@ void communication_init(void);
 #define FID_GET_MOTION_CALLBACK_PERIOD 18
 #define FID_SET_DATE_TIME_CALLBACK_PERIOD 19
 #define FID_GET_DATE_TIME_CALLBACK_PERIOD 20
+#define FID_SET_SBAS_CONFIG 27
+#define FID_GET_SBAS_CONFIG 28
 
 #define FID_CALLBACK_PULSE_PER_SECOND 21
 #define FID_CALLBACK_COORDINATES 22
@@ -286,6 +291,21 @@ typedef struct {
 	uint32_t time;
 } __attribute__((__packed__)) DateTime_Callback;
 
+typedef struct {
+	TFPMessageHeader header;
+	uint8_t sbas_config;
+} __attribute__((__packed__)) SetSBASConfig;
+
+typedef struct {
+	TFPMessageHeader header;
+	uint8_t sbas_config;
+} __attribute__((__packed__)) GetSBASConfig;
+
+typedef struct {
+	TFPMessageHeader header;
+	uint8_t sbas_config;
+} __attribute__((__packed__)) GetSBASConfig_Response;
+
 
 // Function prototypes
 BootloaderHandleMessageResponse get_coordinates(const GetCoordinates *data, GetCoordinates_Response *response);
@@ -308,6 +328,8 @@ BootloaderHandleMessageResponse set_motion_callback_period(const SetMotionCallba
 BootloaderHandleMessageResponse get_motion_callback_period(const GetMotionCallbackPeriod *data, GetMotionCallbackPeriod_Response *response);
 BootloaderHandleMessageResponse set_date_time_callback_period(const SetDateTimeCallbackPeriod *data);
 BootloaderHandleMessageResponse get_date_time_callback_period(const GetDateTimeCallbackPeriod *data, GetDateTimeCallbackPeriod_Response *response);
+BootloaderHandleMessageResponse set_sbas_config(const SetSBASConfig *data);
+BootloaderHandleMessageResponse get_sbas_config(const GetSBASConfig *data, GetSBASConfig_Response *response);
 
 // Callbacks
 bool handle_pulse_per_second_callback(void);

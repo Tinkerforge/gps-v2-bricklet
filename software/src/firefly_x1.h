@@ -41,6 +41,7 @@
 #define FIREFLY_X1_INTERRUPT_TIMEOUT 2000
 #define FIREFLY_X1_DATA_TIMEOUT 10000
 #define FIREFLY_X1_RESET_TIMEOUT 1000
+#define FIREFLY_X1_TIME_BETWEEN_SENDS 100 // According to datasheet we need to wait 30ms between each message that we send
 
 typedef struct {
     char mode;
@@ -83,6 +84,14 @@ typedef enum {
 } FireFlyX1Restart;
 
 typedef enum {
+	FIREFLY_X1_SBAS_5HZ      = 1,
+	FIREFLY_X1_SBAS_ENABLE   = 2,
+	FIREFLY_X1_SBAS_DISABLE  = 4,
+	FIREFLY_X1_SBAS_10HZ     = 8,
+	FIREFLY_X1_SBAS_BAUDRATE = 16,
+} FireFlyX1SBAS;
+
+typedef enum {
 	FIREFLY_X1_STATE_WAIT_FOR_INTERRUPT,
 	FIREFLY_X1_STATE_RECEIVE_IN_PROGRESS,
 	FIREFLY_X1_STATE_WAIT_8MS,
@@ -103,8 +112,11 @@ typedef struct {
 	uint32_t last_interrupt_time;
 	uint32_t last_data_time;
 	uint32_t reset_time;
+	uint32_t last_send_time;
 
 	uint8_t restart;
+	uint8_t sbas;
+	bool sbas_enabled;
 
 	bool new_coordinates;
 	bool new_status;
@@ -124,6 +136,7 @@ typedef enum {
 } FireFlyX1Talker;
 
 
+void firefly_x1_update_sbas(FireFlyX1 *firefly_x1);
 void firefly_x1_init(FireFlyX1 *firefly_x1);
 void firefly_x1_tick(FireFlyX1 *firefly_x1);
 
