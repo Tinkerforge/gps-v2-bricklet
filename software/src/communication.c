@@ -118,7 +118,7 @@ BootloaderHandleMessageResponse get_motion(const GetMotion *data, GetMotion_Resp
 BootloaderHandleMessageResponse get_date_time(const GetDateTime *data, GetDateTime_Response *response) {
 	response->header.length = sizeof(GetDateTime_Response);
 	response->date = firefly_x1.mixed.date.day*100*100 + firefly_x1.mixed.date.month*100 + firefly_x1.mixed.date.year;
-	response->time = firefly_x1.mixed.time.hours*1000*100*100 + firefly_x1.mixed.time.minutes*1000*100 + firefly_x1.mixed.time.seconds*1000 + firefly_x1.mixed.time.microseconds;
+	response->time = firefly_x1.mixed.time.hours*1000*100*100 + firefly_x1.mixed.time.minutes*1000*100 + firefly_x1.mixed.time.seconds*1000 + firefly_x1.mixed.time.microseconds/1000;
 
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
 }
