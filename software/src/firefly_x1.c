@@ -72,7 +72,7 @@ void firefly_x1_init(FireFlyX1 *firefly_x1) {
 
 	// USIC channel configuration
 	const XMC_SPI_CH_CONFIG_t channel_config = {
-		.baudrate       = 100000,
+		.baudrate       = 200000,
 		.bus_mode       = XMC_SPI_CH_BUS_MODE_MASTER,
 		.selo_inversion = XMC_SPI_CH_SLAVE_SEL_INV_TO_MSLS,
 		.parity_mode    = XMC_USIC_CH_PARITY_MODE_NONE
