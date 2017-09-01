@@ -38,9 +38,6 @@
 FireFlyX1 firefly_x1;
 
 int main(void) {
-	uartbb_init();
-	uartbb_puts("Start GPS Bricklet 2.0\n\r");
-
 	communication_callback_init();
 	firefly_x1_init(&firefly_x1);
 
