@@ -3,3 +3,8 @@
 
 2017-05-31: 2.0.1 (20419f8)
 - Report speed correctly as km/h instead of knots
+
+2017-09-01: 2.0.2 (7298b8d)
+- Reset FireflyX1 if it doesn't talk anymore
+- Fix millisecond date/time bug (did use us instead of ms)
+- Add API to enable/disable SBAS (with 5Hz/10Hz update rate)
