@@ -1,9 +1,9 @@
-(kicad_pcb (version 4) (host pcbnew 4.0.2+dfsg1-stable)
+(kicad_pcb (version 4) (host pcbnew 4.0.7-e2-6376~58~ubuntu17.04.1)
 
   (general
     (links 85)
     (no_connects 1)
-    (area 166.324999 85.824999 206.475001 120.975001)
+    (area 165.544999 85.044999 207.255001 121.755001)
     (thickness 1.6)
     (drawings 20)
     (tracks 401)
@@ -14,8 +14,8 @@
 
   (page A4)
   (layers
-    (0 F.Cu signal)
-    (31 B.Cu signal)
+    (0 F.Cu signal hide)
+    (31 B.Cu signal hide)
     (32 B.Adhes user hide)
     (33 F.Adhes user hide)
     (34 B.Paste user)
@@ -1144,7 +1144,7 @@
       (xy 2.3114 -1.41732) (xy 2.3114 -1.67132) (xy 2.3114 -1.67132)) (layer B.SilkS) (width 0.00254))
   )
 
-  (module kicad-libraries:QFN24-4x4mm-0.5mm (layer F.Cu) (tedit 590CA070) (tstamp 5806613C)
+  (module kicad-libraries:QFN24-4x4mm-0.5mm (layer F.Cu) (tedit 59C0E868) (tstamp 5806613C)
     (at 191.2 103.3 270)
     (tags "QFN 24pin 0.5")
     (path /5805EA54)
@@ -1152,7 +1152,7 @@
     (fp_text reference U101 (at 0 -0.4 270) (layer F.Fab)
       (effects (font (size 0.3 0.3) (thickness 0.075)))
     )
-    (fp_text value XMC1XXX24 (at 0 0.8 270) (layer F.Fab)
+    (fp_text value XMC1302-32 (at 0 0.8 270) (layer F.Fab)
       (effects (font (size 0.3 0.3) (thickness 0.075)))
     )
     (fp_line (start -1 -2) (end 2 -2) (layer F.Fab) (width 0.15))
