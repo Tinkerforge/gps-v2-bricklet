@@ -1,4 +1,4 @@
-update=Mi 12 Jul 2017 12:19:36 CEST
+update=Mo 13 Nov 2017 16:52:00 CET
 version=1
 last_client=kicad
 [cvpcb]
@@ -44,7 +44,7 @@ BoardOutlineThickness=0.15
 ModuleOutlineThickness=0.15
 [eeschema]
 version=1
-LibDir=kicad-libraries.pretty
+LibDir=kicad-libraries
 [eeschema/libraries]
 LibName1=tinkerforge
 LibName2=power
