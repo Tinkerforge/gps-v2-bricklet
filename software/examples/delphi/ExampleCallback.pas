@@ -30,8 +30,10 @@ procedure TExample.CoordinatesCB(sender: TBrickletGPSV2; const latitude: longwor
                                  const ns: char; const longitude: longword;
                                  const ew: char);
 begin
-  WriteLn(Format('Latitude: %.6f° %s', [latitude/1000000.0, ns]));
-  WriteLn(Format('Longitude: %.6f° %s', [longitude/1000000.0, ew]));
+  WriteLn(Format('Latitude: %f °', [latitude/1000000.0]));
+  WriteLn(Format('N/S: %s', [ns]));
+  WriteLn(Format('Longitude: %f °', [longitude/1000000.0]));
+  WriteLn(Format('E/W: %s', [ew]));
   WriteLn('');
 end;
 

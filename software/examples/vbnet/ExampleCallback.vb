@@ -9,8 +9,10 @@ Module ExampleCallback
     ' Callback subroutine for coordinates callback
     Sub CoordinatesCB(ByVal sender As BrickletGPSV2, ByVal latitude As Long, _
                       ByVal ns As Char, ByVal longitude As Long, ByVal ew As Char)
-        Console.WriteLine("Latitude: " + (latitude/1000000.0).ToString() + "° " + ns)
-        Console.WriteLine("Longitude: " + (longitude/1000000.0).ToString() + "° " + ew)
+        Console.WriteLine("Latitude: " + (latitude/1000000.0).ToString() + " °")
+        Console.WriteLine("N/S: " + ns)
+        Console.WriteLine("Longitude: " + (longitude/1000000.0).ToString() + " °")
+        Console.WriteLine("E/W: " + ew)
         Console.WriteLine("")
     End Sub
 

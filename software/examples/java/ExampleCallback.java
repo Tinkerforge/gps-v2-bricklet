@@ -20,8 +20,10 @@ public class ExampleCallback {
 		// Add coordinates listener
 		gps.addCoordinatesListener(new BrickletGPSV2.CoordinatesListener() {
 			public void coordinates(long latitude, char ns, long longitude, char ew) {
-				System.out.println("Latitude: " + latitude/1000000.0 + "° " + ns);
-				System.out.println("Longitude: " + longitude/1000000.0 + "° " + ew);
+				System.out.println("Latitude: " + latitude/1000000.0 + " °");
+				System.out.println("N/S: " + ns);
+				System.out.println("Longitude: " + longitude/1000000.0 + " °");
+				System.out.println("E/W: " + ew);
 				System.out.println("");
 			}
 		});
