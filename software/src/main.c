@@ -28,8 +28,8 @@
 #include "configs/config.h"
 
 #include "bricklib2/bootloader/bootloader.h"
-#include "bricklib2/hal/uartbb/uartbb.h"
 #include "bricklib2/utility/communication_callback.h"
+#include "bricklib2/logging/logging.h"
 #include "communication.h"
 #include "firefly_x1.h"
 
@@ -38,6 +38,9 @@
 FireFlyX1 firefly_x1;
 
 int main(void) {
+	logging_init();
+	logd("Start GPS V2 Bricklet\n\r");
+
 	communication_callback_init();
 	firefly_x1_init(&firefly_x1);
 
