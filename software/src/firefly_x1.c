@@ -252,7 +252,9 @@ void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
 
 		case MINMEA_SENTENCE_RMC: {
 			struct minmea_sentence_rmc rmc;
-			minmea_parse_rmc(&rmc, sentence);
+			if(!minmea_parse_rmc(&rmc, sentence)) {
+				return;
+			}
 
 			if(firefly_x1->mixed.time.hours        != rmc.time.hours ||
 			   firefly_x1->mixed.time.minutes      != rmc.time.minutes ||
@@ -286,7 +288,9 @@ void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
 
 		case MINMEA_SENTENCE_GGA: {
 			struct minmea_sentence_gga gga;
-			minmea_parse_gga(&gga, sentence);
+			if(!minmea_parse_gga(&gga, sentence)) {
+				return;
+			}
 
 			if(firefly_x1->mixed.time.hours         != gga.time.hours ||
 			   firefly_x1->mixed.time.minutes       != gga.time.minutes ||
@@ -324,7 +328,9 @@ void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
 
 		case MINMEA_SENTENCE_GSA: {
 			struct minmea_sentence_gsa gsa;
-			minmea_parse_gsa(&gsa, sentence);
+			if(!minmea_parse_gsa(&gsa, sentence)) {
+				return;
+			}
 
 			FireFlyX1DataSingle *single;
 			if(talker == TALKER_GPS) {
@@ -357,7 +363,9 @@ void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
 
 		case MINMEA_SENTENCE_GSV: {
 			struct minmea_sentence_gsv gsv;
-			minmea_parse_gsv(&gsv, sentence);
+			if(!minmea_parse_gsv(&gsv, sentence)) {
+				return;
+			}
 
 			FireFlyX1DataSingle *single;
 			if(talker == TALKER_GPS) {
@@ -392,7 +400,9 @@ void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
 
 		case MINMEA_SENTENCE_VTG: {
 			struct minmea_sentence_vtg vtg;
-			minmea_parse_vtg(&vtg, sentence);
+			if(!minmea_parse_vtg(&vtg, sentence)) {
+				return;
+			}
 
 			firefly_x1->mixed.true_track_degrees     = vtg.true_track_degrees;
 			firefly_x1->mixed.magnetic_track_degrees = vtg.magnetic_track_degrees;
