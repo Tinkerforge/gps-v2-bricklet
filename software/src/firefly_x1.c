@@ -438,9 +438,11 @@ void firefly_x1_handle_state_wait_for_interrupt(FireFlyX1 *firefly_x1) {
 			} else if(firefly_x1->restart & FIREFLY_X1_RESTART_COLD) {
 				strcpy(firefly_x1->buffer_send, "$PMTK103*30\r\n");
 				firefly_x1->restart &= ~FIREFLY_X1_RESTART_COLD;
+				firefly_x1_update_sbas(firefly_x1); // cold restart clears SBAS settings
 			} else if(firefly_x1->restart & FIREFLY_X1_RESTART_FACTORY) {
 				strcpy(firefly_x1->buffer_send, "$PMTK104*37\r\n");
 				firefly_x1->restart &= ~FIREFLY_X1_RESTART_FACTORY;
+				firefly_x1_update_sbas(firefly_x1); // factory-reset clears SBAS settings
 			} else if(firefly_x1->sbas & FIREFLY_X1_SBAS_BAUDRATE) {
 				strcpy(firefly_x1->buffer_send, "$PMTK251,115200*1F\r\n");
 				firefly_x1->sbas &= ~FIREFLY_X1_SBAS_BAUDRATE;

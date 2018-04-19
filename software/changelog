@@ -8,3 +8,6 @@
 - Reset FireflyX1 if it doesn't talk anymore
 - Fix millisecond date/time bug (did use us instead of ms)
 - Add API to enable/disable SBAS (with 5Hz/10Hz update rate)
+
+2018-04-19: 2.0.3 (<unknown>)
+- Reconfgiure SBAS after cold-restart and factory-reset
