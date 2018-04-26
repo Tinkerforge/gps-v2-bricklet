@@ -10,5 +10,5 @@
 - Add API to enable/disable SBAS (with 5Hz/10Hz update rate)
 
 2018-04-19: 2.0.3 (5ffcc42)
-- Reconfgiure SBAS after cold-restart and factory-reset
+- Reconfigure SBAS after cold-restart and factory-reset
 - Handle different latitude, longitude and altitude resolutions correctly
