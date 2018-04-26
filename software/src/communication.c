@@ -65,28 +65,29 @@ BootloaderHandleMessageResponse handle_message(const void *message, void *respon
 	}
 }
 
-
 BootloaderHandleMessageResponse get_coordinates(const GetCoordinates *data, GetCoordinates_Response *response) {
 	response->header.length = sizeof(GetCoordinates_Response);
 
-	uint32_t ulat  = firefly_x1.mixed.latitude.value  > 0 ? firefly_x1.mixed.latitude.value  : -firefly_x1.mixed.latitude.value;
-	uint32_t ulong = firefly_x1.mixed.longitude.value > 0 ? firefly_x1.mixed.longitude.value : -firefly_x1.mixed.longitude.value;
+	uint32_t ulat = firefly_x1.mixed.latitude.value  > 0 ? firefly_x1.mixed.latitude.value  : -firefly_x1.mixed.latitude.value;
+	uint32_t ulon = firefly_x1.mixed.longitude.value > 0 ? firefly_x1.mixed.longitude.value : -firefly_x1.mixed.longitude.value;
 
-	// Convert from DD.MMMMMM to DD.DDDDDD
-	ulat  *= (10000/firefly_x1.mixed.latitude.scale);
-	ulong *= (10000/firefly_x1.mixed.longitude.scale);
+	// Convert from DDMM.MMMM to DD.DDDDDD, assume the module report 4 or more
+	// factional digits and convert to always 4 factional digits
+	ulat /= firefly_x1.mixed.latitude.scale / 10000;
+	ulon /= firefly_x1.mixed.longitude.scale / 10000;
 
-	uint32_t ulat_mins  = ulat  % 1000000;
-	uint32_t ulong_mins = ulong % 1000000;
-	ulat  -= ulat_mins;
-	ulong -= ulong_mins;
+	uint32_t ulat_mins = ulat % 1000000;
+	uint32_t ulon_mins = ulon % 1000000;
 
-	ulat  += ulat_mins*100  / 60;
-	ulong += ulong_mins*100 / 60;
+	ulat -= ulat_mins;
+	ulon -= ulon_mins;
+
+	ulat += ulat_mins * 100 / 60;
+	ulon += ulon_mins * 100 / 60;
 
 	response->latitude  = ulat;
 	response->ns        = firefly_x1.mixed.latitude.value > 0 ? 'N' : 'S';
-	response->longitude = ulong;
+	response->longitude = ulon;
 	response->ew        = firefly_x1.mixed.longitude.value > 0 ? 'E' : 'W';
 
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
@@ -103,8 +104,18 @@ BootloaderHandleMessageResponse get_status(const GetStatus *data, GetStatus_Resp
 
 BootloaderHandleMessageResponse get_altitude(const GetAltitude *data, GetAltitude_Response *response) {
 	response->header.length = sizeof(GetAltitude_Response);
-	response->altitude           = firefly_x1.mixed.altitude.value * (100/firefly_x1.mixed.altitude.scale);
-	response->geoidal_separation = firefly_x1.mixed.height.value   * (100/firefly_x1.mixed.height.scale);
+
+	if (firefly_x1.mixed.altitude.scale <= 100) {
+		response->altitude = firefly_x1.mixed.altitude.value * (100 / firefly_x1.mixed.altitude.scale);
+	} else {
+		response->altitude = firefly_x1.mixed.altitude.value / (firefly_x1.mixed.altitude.scale / 100);
+	}
+
+	if (firefly_x1.mixed.height.scale <= 100) {
+		response->geoidal_separation = firefly_x1.mixed.height.value * (100 / firefly_x1.mixed.height.scale);
+	} else {
+		response->geoidal_separation = firefly_x1.mixed.height.value / (firefly_x1.mixed.height.scale / 100);
+	}
 
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
 }
