@@ -13,5 +13,5 @@
 - Reconfigure SBAS after cold-restart and factory-reset
 - Handle different latitude, longitude and altitude resolutions correctly
 
-2018-10-04: 2.0.4 (TBD)
+2018-10-04: 2.0.4 (196cddd)
 - Fix race condition with potential buffer overflow (through bricklib2)
