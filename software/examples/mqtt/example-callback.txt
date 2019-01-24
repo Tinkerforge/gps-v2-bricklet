@@ -1,0 +1,12 @@
+
+
+# Change XYZ to the UID of your GPS Bricklet 2.0
+
+setup:
+	# Handle incoming coordinates callbacks
+	subscribe to tinkerforge/callback/gps_v2_bricklet/XYZ/coordinates
+	publish '{"register": true}' to tinkerforge/register/gps_v2_bricklet/XYZ/coordinates # Register coordinates callback
+	# Set period for coordinates callback to 1s (1000ms)
+	# Note: The coordinates callback is only called every second
+	#       if the coordinates has changed since the last call!
+	publish '{"period": 1000}' to tinkerforge/request/gps_v2_bricklet/XYZ/set_coordinates_callback_period
