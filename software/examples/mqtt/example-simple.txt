@@ -2,5 +2,5 @@
 
 setup:
 	# Get current coordinates
-	subscribe to tinkerforge/response/gps_v2/XYZ/get_coordinates
+	subscribe to tinkerforge/response/gps_v2_bricklet/XYZ/get_coordinates
 	publish '' to tinkerforge/request/gps_v2_bricklet/XYZ/get_coordinates 
