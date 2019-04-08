@@ -1,6 +1,7 @@
 EESchema Schematic File Version 4
 LIBS:power
 LIBS:74xx
+LIBS:gps-v2.1-cache
 EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
@@ -40,23 +41,12 @@ $EndComp
 $Comp
 L tinkerforge:GND #PWR02
 U 1 1 5045D281
-P 9800 1300
-F 0 "#PWR02" H 9800 1300 30  0001 C CNN
-F 1 "GND" H 9800 1230 30  0001 C CNN
-F 2 "" H 9800 1300 60  0001 C CNN
-F 3 "" H 9800 1300 60  0001 C CNN
-	1    9800 1300
-	1    0    0    -1  
-$EndComp
-$Comp
-L tinkerforge:+BATT #PWR03
-U 1 1 5045D242
-P 9050 1150
-F 0 "#PWR03" H 9050 1100 20  0001 C CNN
-F 1 "+BATT" H 9050 1250 30  0000 C CNN
-F 2 "" H 9050 1150 60  0001 C CNN
-F 3 "" H 9050 1150 60  0001 C CNN
-	1    9050 1150
+P 9950 1250
+F 0 "#PWR02" H 9950 1250 30  0001 C CNN
+F 1 "GND" H 9950 1180 30  0001 C CNN
+F 2 "" H 9950 1250 60  0001 C CNN
+F 3 "" H 9950 1250 60  0001 C CNN
+	1    9950 1250
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -173,17 +163,6 @@ F 3 "" H 8600 5300 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L tinkerforge:+BATT #PWR07
-U 1 1 56AA1FBE
-P 8750 3200
-F 0 "#PWR07" H 8750 3150 20  0001 C CNN
-F 1 "+BATT" H 8750 3300 30  0000 C CNN
-F 2 "" H 8750 3200 60  0001 C CNN
-F 3 "" H 8750 3200 60  0001 C CNN
-	1    8750 3200
-	1    0    0    -1  
-$EndComp
-$Comp
 L tinkerforge:C C106
 U 1 1 56AA228C
 P 8950 3400
@@ -239,35 +218,24 @@ F 3 "" H 8950 3000 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L tinkerforge:FILTER FB101
+L tinkerforge:INDUCT FB101
 U 1 1 56AA368E
 P 2400 1500
-F 0 "FB101" H 2400 1650 60  0000 C CNN
-F 1 "FB" H 2400 1400 60  0000 C CNN
+F 0 "FB101" V 2500 1500 60  0000 C CNN
+F 1 "FB" V 2300 1450 60  0000 C CNN
 F 2 "kicad-libraries:C0603E" H 2400 1500 60  0001 C CNN
 F 3 "" H 2400 1500 60  0001 C CNN
 	1    2400 1500
-	1    0    0    -1  
+	0    1    1    0   
 $EndComp
-$Comp
-L tinkerforge:L_Small L101
-U 1 1 56AA4A18
-P 9900 3800
-F 0 "L101" H 9930 3840 50  0000 L CNN
-F 1 "33nH" H 9930 3760 50  0000 L CNN
-F 2 "kicad-libraries:C0603E" H 9900 3800 50  0001 C CNN
-F 3 "" H 9900 3800 50  0000 C CNN
-	1    9900 3800
-	1    0    0    -1  
-$EndComp
-Text Notes 9950 3650 0    60   ~ 0
+Text Notes 10100 3500 0    60   ~ 0
 for active antennas\nMLG1608B33NJT
 $Comp
 L tinkerforge:C C107
 U 1 1 56AA4D38
 P 9700 3650
 F 0 "C107" V 9750 3750 50  0000 L CNN
-F 1 "1µF" V 9550 3550 50  0000 L CNN
+F 1 "1µF" V 9850 3600 50  0000 L CNN
 F 2 "kicad-libraries:C0603E" H 9700 3650 60  0001 C CNN
 F 3 "" H 9700 3650 60  0001 C CNN
 	1    9700 3650
@@ -295,18 +263,18 @@ F 3 "" H 9900 3600 60  0001 C CNN
 	1    9900 3600
 	1    0    0    -1  
 $EndComp
-Text Notes 9900 4100 0    60   ~ 0
+Text Notes 9800 4100 0    60   ~ 0
 50 Ohm
 $Comp
-L tinkerforge:Battery BT101
+L tinkerforge:BATTERY BT101
 U 1 1 56C49817
-P 9500 1150
-F 0 "BT101" H 9600 1200 50  0000 L CNN
-F 1 "Battery" H 9600 1100 50  0000 L CNN
-F 2 "kicad-libraries:BATTERY_HOLDER_BK870" V 9500 1190 50  0001 C CNN
-F 3 "" V 9500 1190 50  0000 C CNN
-	1    9500 1150
-	0    -1   -1   0   
+P 9500 1100
+F 0 "BT101" H 9400 1300 50  0000 L CNN
+F 1 "Battery" H 9350 900 50  0000 L CNN
+F 2 "kicad-libraries:BATTERY_HOLDER_BK870" V 9500 1140 50  0001 C CNN
+F 3 "" V 9500 1140 50  0000 C CNN
+	1    9500 1100
+	1    0    0    -1  
 $EndComp
 $Comp
 L tinkerforge:XMC1XXX24 U101
@@ -658,11 +626,11 @@ F 3 "" H 2350 4150 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	9050 1150 9350 1150
+	8900 1100 9200 1100
 Wire Wire Line
 	1550 2000 1800 2000
 Wire Wire Line
-	9800 1300 9800 1150
+	9950 1250 9950 1100
 Wire Wire Line
 	9250 4000 9900 4000
 Wire Wire Line
@@ -693,7 +661,7 @@ Wire Wire Line
 	9900 3600 9900 3650
 Connection ~ 9900 3650
 Wire Wire Line
-	9800 1150 9650 1150
+	9950 1100 9800 1100
 Wire Wire Line
 	9500 3700 9500 3650
 Wire Wire Line
@@ -863,7 +831,7 @@ Wire Wire Line
 Wire Wire Line
 	7700 4250 7950 4250
 Wire Wire Line
-	2750 1450 2750 1550
+	2750 1450 2750 1500
 $Comp
 L tinkerforge:R_PACK4 RP2
 U 1 1 5CAB3A75
@@ -909,4 +877,30 @@ Wire Wire Line
 	3150 2900 3450 2900
 Wire Wire Line
 	3150 3000 3450 3000
+Wire Wire Line
+	2650 1500 2750 1500
+Connection ~ 2750 1500
+Wire Wire Line
+	2750 1500 2750 1550
+Wire Wire Line
+	2150 1500 2050 1500
+Connection ~ 2050 1500
+Text GLabel 8900 1100 0    60   Input ~ 0
+VBat
+Text GLabel 9050 3200 2    60   Input ~ 0
+VBat
+Wire Wire Line
+	9050 3200 8950 3200
+Connection ~ 8950 3200
+$Comp
+L tinkerforge:INDUCTs L101
+U 1 1 5CAE7AB3
+P 9900 3800
+F 0 "L101" H 9953 3831 31  0000 L CNN
+F 1 "33nH" H 9953 3769 31  0000 L CNN
+F 2 "kicad-libraries:R0603E" H 9953 3738 60  0001 L CNN
+F 3 "" H 9900 3800 60  0000 C CNN
+	1    9900 3800
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
