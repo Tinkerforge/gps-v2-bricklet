@@ -19,5 +19,5 @@
 2019-05-29: 2.0.5 (cba4577)
 - Fix SPITFP IRQ race condition with other higher prio IRQs (through bricklib2)
 
-2019-06-13: 2.0.6 (TBD)
+2019-06-13: 2.0.6 (41393ee)
 - Fix speed overflow at speeds >=214.74km/h
