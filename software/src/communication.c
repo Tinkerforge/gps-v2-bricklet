@@ -174,8 +174,8 @@ BootloaderHandleMessageResponse get_satellite_system_status_low_level(const GetS
 
 	response->fix  = single->fix_type;
 	response->hdop = single->hdop.value * (100/single->hdop.scale);
-	response->vdop = single->vdop.value * (100/single->hdop.scale);
-	response->pdop = single->pdop.value * (100/single->hdop.scale);
+	response->vdop = single->vdop.value * (100/single->vdop.scale);
+	response->pdop = single->pdop.value * (100/single->pdop.scale);
 
 	return HANDLE_MESSAGE_RESPONSE_NEW_MESSAGE;
 }
