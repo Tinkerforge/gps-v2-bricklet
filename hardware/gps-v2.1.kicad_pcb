@@ -1,8 +1,8 @@
-(kicad_pcb (version 20171130) (host pcbnew 5.1.4-e60b266~84~ubuntu18.04.1)
+(kicad_pcb (version 20171130) (host pcbnew 5.1.5-52549c5~84~ubuntu18.04.1)
 
   (general
     (thickness 1.6)
-    (drawings 20)
+    (drawings 21)
     (tracks 357)
     (zones 0)
     (modules 35)
@@ -11,8 +11,8 @@
 
   (page A4)
   (layers
-    (0 F.Cu signal)
-    (31 B.Cu signal)
+    (0 F.Cu signal hide)
+    (31 B.Cu signal hide)
     (32 B.Adhes user hide)
     (33 F.Adhes user hide)
     (34 B.Paste user)
@@ -66,7 +66,7 @@
     (pad_to_mask_clearance 0)
     (aux_axis_origin 166.4 85.9)
     (grid_origin 166.4 85.9)
-    (visible_elements FFFFFF7F)
+    (visible_elements FFFEFF7F)
     (pcbplotparams
       (layerselection 0x011f8_ffffffff)
       (usegerberextensions true)
@@ -6972,6 +6972,9 @@
     )
   )
 
+  (gr_text CR1025 (at 171.3 111.8) (layer F.SilkS)
+    (effects (font (size 0.8 0.8) (thickness 0.15)))
+  )
   (gr_line (start 188 89.9) (end 184.8 89.9) (angle 90) (layer Edge.Cuts) (width 0.15))
   (gr_line (start 184.8 87.4) (end 188 87.4) (angle 90) (layer Edge.Cuts) (width 0.15))
   (gr_line (start 184.4 89.5) (end 184.4 87.8) (angle 90) (layer Edge.Cuts) (width 0.15))
