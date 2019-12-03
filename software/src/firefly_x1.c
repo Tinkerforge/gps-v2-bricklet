@@ -59,7 +59,6 @@ void __attribute__((optimize("-O3"))) firefly_x1_tx_irq_handler(void) {
 	}
 }
 
-
 void firefly_x1_init(FireFlyX1 *firefly_x1) {
 	// Initialize the whole struct as zero
 	memset(firefly_x1, 0, sizeof(FireFlyX1));
@@ -128,7 +127,6 @@ void firefly_x1_init(FireFlyX1 *firefly_x1) {
 		.output_level     = XMC_GPIO_OUTPUT_LEVEL_LOW
 	};
 
-
 	// Configure GPIO pins
 	XMC_GPIO_Init(FIREFLY_X1_INTERRUPT_PIN, &interrupt_pin_config);
 	XMC_GPIO_Init(FIREFLY_X1_NRESET_PIN, &nreset_pin_config);
@@ -156,7 +154,6 @@ void firefly_x1_init(FireFlyX1 *firefly_x1) {
 	// Configure Leading/Trailing delay
 	XMC_SPI_CH_SetSlaveSelectDelay(FIREFLY_X1_USIC, 2);
 
-
 	// Set input source path
 	XMC_SPI_CH_SetInputSource(FIREFLY_X1_USIC, FIREFLY_X1_MISO_INPUT, FIREFLY_X1_MISO_SOURCE);
 
@@ -177,7 +174,7 @@ void firefly_x1_init(FireFlyX1 *firefly_x1) {
 	XMC_USIC_CH_RXFIFO_SetInterruptNodePointer(FIREFLY_X1_USIC, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_STANDARD, FIREFLY_X1_SERVICE_REQUEST_RX);  // IRQ FIREFLY_X1_IRQ_RX
 	XMC_USIC_CH_RXFIFO_SetInterruptNodePointer(FIREFLY_X1_USIC, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_ALTERNATE, FIREFLY_X1_SERVICE_REQUEST_RX); // IRQ FIREFLY_X1_IRQ_RX
 
-	//Set priority and enable NVIC node for transmit interrupt
+	// Set priority and enable NVIC node for transmit interrupt
 	NVIC_SetPriority((IRQn_Type)FIREFLY_X1_IRQ_TX, FIREFLY_X1_IRQ_TX_PRIORITY);
 	NVIC_EnableIRQ((IRQn_Type)FIREFLY_X1_IRQ_TX);
 
@@ -194,10 +191,10 @@ void firefly_x1_init(FireFlyX1 *firefly_x1) {
 	// Configure slave select pin
 	XMC_GPIO_Init(FIREFLY_X1_SELECT_PIN, &select_pin_config);
 
-	//Configure MOSI pin
+	// Configure MOSI pin
 	XMC_GPIO_Init(FIREFLY_X1_MOSI_PIN, &mosi_pin_config);
 
-	//XMC_USIC_CH_EnableEvent(FIREFLY_X1_USIC, (uint32_t)((uint32_t)XMC_USIC_CH_EVENT_STANDARD_RECEIVE | (uint32_t)XMC_USIC_CH_EVENT_ALTERNATIVE_RECEIVE));
+//	XMC_USIC_CH_EnableEvent(FIREFLY_X1_USIC, (uint32_t)((uint32_t)XMC_USIC_CH_EVENT_STANDARD_RECEIVE | (uint32_t)XMC_USIC_CH_EVENT_ALTERNATIVE_RECEIVE));
 	XMC_USIC_CH_RXFIFO_EnableEvent(FIREFLY_X1_USIC, XMC_USIC_CH_RXFIFO_EVENT_CONF_STANDARD | XMC_USIC_CH_RXFIFO_EVENT_CONF_ALTERNATE);
 
 	firefly_x1->last_data_time = system_timer_get_ms();
@@ -239,7 +236,6 @@ void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
 	}
 
 	firefly_x1->last_data_time = system_timer_get_ms();
-
 
 	switch(id) {
 		case MINMEA_INVALID: {
