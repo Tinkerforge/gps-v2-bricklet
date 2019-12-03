@@ -490,6 +490,7 @@ void firefly_x1_handle_state_wait_8ms(FireFlyX1 *firefly_x1) {
 void firefly_x1_handle_state_reset(FireFlyX1 *firefly_x1) {
 	if(firefly_x1->reset_time == 0) {
 		firefly_x1->reset_time = system_timer_get_ms();
+		firefly_x1->last_data_time = system_timer_get_ms();
 		XMC_GPIO_SetOutputLow(FIREFLY_X1_NRESET_PIN);
 	} else if(system_timer_is_time_elapsed_ms(firefly_x1->reset_time, FIREFLY_X1_RESET_TIMEOUT)) {
 		XMC_GPIO_SetOutputHigh(FIREFLY_X1_NRESET_PIN);
