@@ -1,5 +1,6 @@
 /* gps-v2-bricklet
  * Copyright (C) 2016 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2020 Matthias Bolte <matthias@tinkerforge.com>
  *
  * config.c: All configurations for GPS Bricklet 2.0
  *
@@ -30,7 +31,7 @@
 
 #define FIRMWARE_VERSION_MAJOR 2
 #define FIRMWARE_VERSION_MINOR 0
-#define FIRMWARE_VERSION_REVISION 6
+#define FIRMWARE_VERSION_REVISION 7
 
 #define SYSTEM_TIMER_FREQUENCY 1000 // Use 1 kHz system timer
 

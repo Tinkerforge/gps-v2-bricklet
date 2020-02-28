@@ -1,5 +1,6 @@
 /* gps-v2-bricklet
  * Copyright (C) 2016 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2020 Matthias Bolte <matthias@tinkerforge.com>
  *
  * firefly_x1.h: SPI communication with FireFly X1 GPS module
  *
@@ -113,6 +114,8 @@ typedef struct {
 	uint32_t last_data_time;
 	uint32_t reset_time;
 	uint32_t last_send_time;
+
+	bool interrupt_active_high;
 
 	uint8_t restart;
 	uint8_t sbas;

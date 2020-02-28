@@ -1,5 +1,6 @@
 /* gps-v2-bricklet
  * Copyright (C) 2016 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2020 Matthias Bolte <matthias@tinkerforge.com>
  *
  * firefly_x1.c: SPI communication with FireFly X1 GPS module
  *
@@ -200,6 +201,7 @@ void firefly_x1_init(FireFlyX1 *firefly_x1) {
 	firefly_x1->last_data_time = system_timer_get_ms();
 	firefly_x1->last_interrupt_time = system_timer_get_ms();
 	firefly_x1->last_send_time = system_timer_get_ms();
+	firefly_x1->interrupt_active_high = true;
 
 	firefly_x1->sbas_enabled = true;
 	firefly_x1_update_sbas(firefly_x1);
@@ -412,9 +414,15 @@ void firefly_x1_handle_sentence(FireFlyX1 *firefly_x1, const char *sentence) {
 }
 
 void firefly_x1_handle_state_wait_for_interrupt(FireFlyX1 *firefly_x1) {
-	// Interrupt = pin LOW
-	if((!XMC_GPIO_GetInput(FIREFLY_X1_INTERRUPT_PIN)) ||
-	   system_timer_is_time_elapsed_ms(firefly_x1->last_interrupt_time, FIREFLY_X1_INTERRUPT_TIMEOUT)) {
+	const bool interrupt = XMC_GPIO_GetInput(FIREFLY_X1_INTERRUPT_PIN) == firefly_x1->interrupt_active_high;
+
+	if(interrupt || system_timer_is_time_elapsed_ms(firefly_x1->last_interrupt_time, FIREFLY_X1_INTERRUPT_TIMEOUT)) {
+		if(!interrupt) {
+			// No interrupt during timeout duration. Are we using the wrong interrupt active level?
+			// Interrupt can be active-low (FireFly X1, FW version < 5) or active high (XM1110, FW version >= 5)
+			firefly_x1->interrupt_active_high = !firefly_x1->interrupt_active_high;
+		}
+
 		firefly_x1->last_interrupt_time = system_timer_get_ms();
 		memset(firefly_x1->buffer_send, 0xAA, FIREFLY_X1_SEND_BUFFER_SIZE);
 

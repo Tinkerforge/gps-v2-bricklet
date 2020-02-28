@@ -20,4 +20,7 @@
 - Fix SPITFP IRQ race condition with other higher prio IRQs (through bricklib2)
 
 2019-06-13: 2.0.6 (41393ee)
-- Fix speed overflow at speeds >=214.74km/h
+- Fix speed overflow at speeds >= 214.74 km/h
+
+2020-02-28: 2.0.7 (<unknown>)
+- Add support for hardware version 2.1
