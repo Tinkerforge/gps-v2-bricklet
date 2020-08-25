@@ -1,13 +1,9 @@
-
-
 #include "bindings/hal_common.h"
 #include "bindings/bricklet_gps_v2.h"
 
 #define UID "XYZ" // Change XYZ to the UID of your GPS Bricklet 2.0
 
 void check(int rc, const char* msg);
-
-
 
 // Callback function for coordinates callback
 void coordinates_handler(TF_GPSV2 *device, uint32_t latitude, char ns, uint32_t longitude,
@@ -20,7 +16,6 @@ void coordinates_handler(TF_GPSV2 *device, uint32_t latitude, char ns, uint32_t 
 	tf_hal_printf("E/W: %c\n", ew);
 	tf_hal_printf("\n");
 }
-
 
 TF_GPSV2 gps;
 
