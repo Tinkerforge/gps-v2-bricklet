@@ -23,17 +23,15 @@ void example_setup(TF_HalContext *hal) {
 	// Create device object
 	check(tf_gps_v2_create(&gps, UID, hal), "create device object");
 
-
 	// Register coordinates callback to function coordinates_handler
 	tf_gps_v2_register_coordinates_callback(&gps,
-	                                       coordinates_handler,
-	                                       NULL);
+	                                        coordinates_handler,
+	                                        NULL);
 
 	// Set period for coordinates callback to 1s (1000ms)
 	// Note: The coordinates callback is only called every second
 	//       if the coordinates has changed since the last call!
 	check(tf_gps_v2_set_coordinates_callback_period(&gps, 1000), "set coordinates callback period");
-
 }
 
 void example_loop(TF_HalContext *hal) {

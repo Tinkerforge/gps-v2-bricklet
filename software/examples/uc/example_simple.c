@@ -11,7 +11,6 @@ void example_setup(TF_HalContext *hal) {
 	// Create device object
 	check(tf_gps_v2_create(&gps, UID, hal), "create device object");
 
-
 	// Get current coordinates
 	uint32_t latitude, longitude; char ns, ew;
 	check(tf_gps_v2_get_coordinates(&gps, &latitude, &ns, &longitude,
@@ -21,7 +20,6 @@ void example_setup(TF_HalContext *hal) {
 	tf_hal_printf("N/S: %c\n", ns);
 	tf_hal_printf("Longitude: %d 1/%d °\n", longitude, 1000000.0);
 	tf_hal_printf("E/W: %c\n", ew);
-
 }
 
 void example_loop(TF_HalContext *hal) {
