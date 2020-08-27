@@ -5,9 +5,13 @@
 
 void check(int rc, const char* msg);
 
+void example_setup(TF_HalContext *hal);
+void example_loop(TF_HalContext *hal);
+
+
 // Callback function for coordinates callback
-void coordinates_handler(TF_GPSV2 *device, uint32_t latitude, char ns, uint32_t longitude,
-                         char ew, void *user_data) {
+static void coordinates_handler(TF_GPSV2 *device, uint32_t latitude, char ns,
+                                uint32_t longitude, char ew, void *user_data) {
 	(void)device; (void)user_data; // avoid unused parameter warning
 
 	tf_hal_printf("Latitude: %d 1/%d °\n", latitude, 1000000.0);
@@ -17,7 +21,7 @@ void coordinates_handler(TF_GPSV2 *device, uint32_t latitude, char ns, uint32_t 
 	tf_hal_printf("\n");
 }
 
-TF_GPSV2 gps;
+static TF_GPSV2 gps;
 
 void example_setup(TF_HalContext *hal) {
 	// Create device object
