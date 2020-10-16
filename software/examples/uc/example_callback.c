@@ -18,9 +18,9 @@ static void coordinates_handler(TF_GPSV2 *device, uint32_t latitude, char ns,
                                 uint32_t longitude, char ew, void *user_data) {
 	(void)device; (void)user_data; // avoid unused parameter warning
 
-	tf_hal_printf("Latitude: %d 1/%d °\n", latitude, 1000000.0);
+	tf_hal_printf("Latitude: %d 1/%d °\n", latitude, 1000000);
 	tf_hal_printf("N/S: %c\n", ns);
-	tf_hal_printf("Longitude: %d 1/%d °\n", longitude, 1000000.0);
+	tf_hal_printf("Longitude: %d 1/%d °\n", longitude, 1000000);
 	tf_hal_printf("E/W: %c\n", ew);
 	tf_hal_printf("\n");
 }
