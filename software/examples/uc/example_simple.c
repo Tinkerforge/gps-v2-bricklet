@@ -24,9 +24,9 @@ void example_setup(TF_HalContext *hal) {
 	check(tf_gps_v2_get_coordinates(&gps, &latitude, &ns, &longitude,
 	                                &ew), "get coordinates");
 
-	tf_hal_printf("Latitude: %d 1/%d °\n", latitude, 1000000.0);
+	tf_hal_printf("Latitude: %d 1/%d °\n", latitude, 1000000);
 	tf_hal_printf("N/S: %c\n", ns);
-	tf_hal_printf("Longitude: %d 1/%d °\n", longitude, 1000000.0);
+	tf_hal_printf("Longitude: %d 1/%d °\n", longitude, 1000000);
 	tf_hal_printf("E/W: %c\n", ew);
 }
 
