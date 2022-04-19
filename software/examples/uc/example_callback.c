@@ -9,8 +9,8 @@
 
 void check(int rc, const char* msg);
 
-void example_setup(TF_HalContext *hal);
-void example_loop(TF_HalContext *hal);
+void example_setup(TF_HAL *hal);
+void example_loop(TF_HAL *hal);
 
 
 // Callback function for coordinates callback
@@ -27,7 +27,7 @@ static void coordinates_handler(TF_GPSV2 *device, uint32_t latitude, char ns,
 
 static TF_GPSV2 gps;
 
-void example_setup(TF_HalContext *hal) {
+void example_setup(TF_HAL *hal) {
 	// Create device object
 	check(tf_gps_v2_create(&gps, UID, hal), "create device object");
 
@@ -42,7 +42,7 @@ void example_setup(TF_HalContext *hal) {
 	check(tf_gps_v2_set_coordinates_callback_period(&gps, 1000), "set coordinates callback period");
 }
 
-void example_loop(TF_HalContext *hal) {
+void example_loop(TF_HAL *hal) {
 	// Poll for callbacks
 	tf_hal_callback_tick(hal, 0);
 }
